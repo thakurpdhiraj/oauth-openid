@@ -26,11 +26,11 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
   @Override
   public AuthorizationCode findByCode(String code) throws OauthAuthCodeNotFoundException {
     return authorizationCodeRepository
-        .findById(code)
+        .findByCode(code)
         .filter(
-            authorizationCode ->
-                authorizationCode.getExpirationDate().isAfter(LocalDateTime.now()))
-        .orElseThrow(() -> new OauthAuthCodeNotFoundException("Authorization code invalid or expired"));
+            authorizationCode -> authorizationCode.getExpirationDate().isAfter(LocalDateTime.now()))
+        .orElseThrow(
+            () -> new OauthAuthCodeNotFoundException("Authorization code invalid or expired"));
   }
 
   @Override
@@ -41,20 +41,25 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
   }
 
   @Override
-  public AuthorizationCode save(AuthorizeRequestDTO requestDTO, Set<String> scopes, OauthClient client, User user) {
-    AuthorizationCode code = AuthorizationCode.builder()
-        .approvedScopes(scopes)
-        .user(user)
-        .client(client)
-        .redirectUri(requestDTO.getRedirect_uri())
-        .nonce(requestDTO.getNonce())
-        .isRefreshRequired(requestDTO.getAccess_type()!=null && requestDTO.getAccess_type().equals("offline"))
-        .expirationDate(LocalDateTime.now().plusMinutes(2)).build();
+  public AuthorizationCode save(
+      AuthorizeRequestDTO requestDTO, Set<String> scopes, OauthClient client, User user) {
+    AuthorizationCode code =
+        AuthorizationCode.builder()
+            .approvedScopes(scopes)
+            .user(user)
+            .client(client)
+            .redirectUri(requestDTO.getRedirect_uri())
+            .nonce(requestDTO.getNonce())
+            .isRefreshRequired(
+                requestDTO.getAccess_type() != null
+                    && requestDTO.getAccess_type().equals("offline"))
+            .expirationDate(LocalDateTime.now().plusMinutes(2))
+            .build();
     return this.save(code);
   }
 
   @Override
-  public void delete(String code) {
-     authorizationCodeRepository.deleteById(code);
+  public void delete(AuthorizationCode code) {
+    authorizationCodeRepository.delete(code);
   }
 }

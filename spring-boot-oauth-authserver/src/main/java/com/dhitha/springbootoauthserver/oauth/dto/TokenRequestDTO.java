@@ -18,10 +18,10 @@ public class TokenRequestDTO implements Serializable {
   @NotEmpty(message = "Param 'grant_type' cannot be empty or null")
   private String grant_type;
 
-  @NotEmpty(message = "Param 'code' cannot be empty or null")
+  private String redirect_uri;
+
   private String code;
 
-  @NotEmpty(message = "Param 'redirect_uri' cannot be empty or null")
-  private String redirect_uri;
+  private String refresh_token;
 
 }

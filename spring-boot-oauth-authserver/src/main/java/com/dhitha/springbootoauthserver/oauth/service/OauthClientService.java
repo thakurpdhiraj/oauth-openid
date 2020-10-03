@@ -12,6 +12,8 @@ public interface OauthClientService {
 
   OauthClient findByClientId(String clientId) throws OauthClientNotFoundException;
 
-  OauthClient validateClientCredentials(String clientId, String clientSecret)
+  void validateClientCredentials(String clientId, String clientSecret)
       throws OauthClientNotFoundException;
+
+  void validateClientCredentials(String authHeader) throws OauthClientNotFoundException;
 }

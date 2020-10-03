@@ -37,6 +37,9 @@ public class AuthorizationCode implements Serializable {
   private static final long serialVersionUID = 1;
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
   @Column(name = "code", unique = true, nullable = false)
   private String code;
 
@@ -59,7 +62,7 @@ public class AuthorizationCode implements Serializable {
   @Column(name = "redirect_uri", nullable = false)
   private String redirectUri;
 
-  @Column(name = "nonce", nullable = false)
+  @Column(name = "nonce")
   private String nonce;
 
   @Column(name = "is_refresh_required", columnDefinition = "bit(1) default 0")

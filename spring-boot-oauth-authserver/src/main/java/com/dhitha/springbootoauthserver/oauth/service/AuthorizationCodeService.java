@@ -19,5 +19,5 @@ public interface AuthorizationCodeService {
 
   AuthorizationCode save(AuthorizeRequestDTO requestDTO, Set<String> scopes, OauthClient client, User user);
 
-  void delete(String code);
+  void delete(AuthorizationCode code);
 }

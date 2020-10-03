@@ -32,7 +32,6 @@ public class AuthorizeRequestDTO implements Serializable {
 
   private String state;
 
-  @NotEmpty(message = "'nonce' parameter must not be null or empty")
   private String nonce;
 
   private String access_type;

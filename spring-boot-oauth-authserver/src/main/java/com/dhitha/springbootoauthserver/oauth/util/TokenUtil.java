@@ -7,6 +7,7 @@ import com.dhitha.springbootoauthserver.oauth.entity.AccessToken;
 import com.dhitha.springbootoauthserver.oauth.entity.AuthorizationCode;
 import com.dhitha.springbootoauthserver.oauth.entity.User;
 import com.dhitha.springbootoauthserver.oauth.error.generic.GenericTokenException;
+import com.dhitha.springbootoauthserver.oauth.error.notfound.AccessTokenNotFoundException;
 import com.dhitha.springbootoauthserver.oauth.error.notfound.OauthAuthCodeNotFoundException;
 import com.dhitha.springbootoauthserver.oauth.error.notfound.OauthClientNotFoundException;
 import com.dhitha.springbootoauthserver.oauth.service.AccessTokenService;
@@ -15,13 +16,13 @@ import com.dhitha.springbootoauthserver.oauth.service.OauthClientService;
 import com.nimbusds.jwt.JWTClaimsSet.Builder;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.util.Base64;
 import java.util.Date;
 import lombok.extern.log4j.Log4j2;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 /**
  * Utility for TokenController
@@ -32,40 +33,54 @@ import org.springframework.stereotype.Component;
 @Log4j2
 public class TokenUtil {
 
-  @Autowired AuthorizationCodeService authorizationCodeService;
   @Autowired OauthClientService oauthClientService;
+  @Autowired AuthorizationCodeService authorizationCodeService;
   @Autowired AccessTokenService accessTokenService;
   @Autowired JWTUtil jwtUtil;
 
-  private String[] validateAndExtractCredentials(String authHeader) throws GenericTokenException {
-    String encodedCredentials;
-    if (authHeader.isBlank()
-        || !authHeader.startsWith("Basic ")
-        || (encodedCredentials = authHeader.substring(6)).isBlank()) {
-      throw new GenericTokenException(
-          "invalid_auth_header",
-          "'Basic Authorization' header must not be empty",
-          HttpStatus.BAD_REQUEST);
+  public void validateClientCredentials(String authHeader) throws GenericTokenException {
+    try {
+      oauthClientService.validateClientCredentials(authHeader);
+    } catch (OauthClientNotFoundException e) {
+      throw new GenericTokenException("invalid_request", e.getMessage(), HttpStatus.BAD_REQUEST);
     }
-    return new String(Base64.getDecoder().decode(encodedCredentials)).split(":");
   }
 
-  private void validateClientCredentials(String[] credentials) throws GenericTokenException {
-    if (credentials.length != 2) {
-      throw new GenericTokenException(
-          "invalid_client", "Invalid client_id / client_secret", HttpStatus.BAD_REQUEST);
-    }
+  public AllowedGrant validateAndFetchGrant(String grant) throws GenericTokenException {
     try {
-      oauthClientService.validateClientCredentials(credentials[0], credentials[1]);
-    } catch (OauthClientNotFoundException e) {
-      throw new GenericTokenException("invalid_client", e.getMessage(), HttpStatus.BAD_REQUEST);
+      return AllowedGrant.get(grant);
+    } catch (IllegalArgumentException e) {
+      throw new GenericTokenException(
+          "unsupported_grant_type", e.getMessage(), HttpStatus.BAD_REQUEST);
     }
+  }
+
+  public JSONObject createAccessTokenForAuthCodeFlow(TokenRequestDTO tokenRequestDTO)
+      throws GenericTokenException {
+    AuthorizationCode code = this.getAuthCode(tokenRequestDTO.getCode());
+    this.validateRedirectURI(code.getRedirectUri(), tokenRequestDTO.getRedirect_uri());
+    String nonce = code.getNonce();
+    AccessToken accessToken = this.generateAccessToken(code);
+    JSONObject tokenResponse = new JSONObject();
+    tokenResponse.appendField("access_token", accessToken.getToken());
+    tokenResponse.appendField("token_type", "Bearer");
+    tokenResponse.appendField("expires_in", 3600L);
+    tokenResponse.appendField("scope", accessToken.getApprovedScopes());
+    if (accessToken.getRefreshToken() != null) {
+      tokenResponse.appendField("refresh_token", accessToken.getRefreshToken());
+    }
+    if (accessToken.getApprovedScopes().contains(AllowedScope.OPENID.getValue())) {
+      String idToken = this.generateIdToken(nonce, accessToken);
+      tokenResponse.appendField("id_token", idToken);
+    }
+    return tokenResponse;
   }
 
   private AuthorizationCode getAuthCode(String code) throws GenericTokenException {
     try {
+      Assert.notNull(code, "param 'code' cannot be null / empty");
       return authorizationCodeService.findByCode(code);
-    } catch (OauthAuthCodeNotFoundException e) {
+    } catch (IllegalArgumentException | OauthAuthCodeNotFoundException e) {
       throw new GenericTokenException("invalid_auth_code", e.getMessage(), HttpStatus.BAD_REQUEST);
     }
   }
@@ -76,19 +91,9 @@ public class TokenUtil {
           "invalid_redirect_uri", "the 'redirect_uri' is invalid", HttpStatus.BAD_REQUEST);
   }
 
-  private void validateGrant(String grant) throws GenericTokenException {
-    if (!AllowedGrant.contains(grant)) {
-      throw new GenericTokenException(
-          "unsupported_grant_type",
-          "the 'grant_type' is invalid. Allowed grant_type values : "
-              + AllowedGrant.getAllAsString(),
-          HttpStatus.BAD_REQUEST);
-    }
-  }
-
   private AccessToken generateAccessToken(AuthorizationCode code) {
     AccessToken accessToken = accessTokenService.saveToken(code);
-    authorizationCodeService.delete(code.getCode());
+    authorizationCodeService.delete(code);
     return accessToken;
   }
 
@@ -106,34 +111,35 @@ public class TokenUtil {
             .notBeforeTime(Date.from(updatedInstant))
             .subject(user.getId().toString())
             .claim("nonce", nonce)
-            .claim("scope", String.join(",", token.getApprovedScopes()));
+            .claim("scope", String.join(", ", token.getApprovedScopes()));
     if (token.getApprovedScopes().contains(AllowedScope.PROFILE.getValue())) {
       jwtBuilder.claim("name", user.getName());
     }
     return jwtUtil.signAndSerializeJWT(jwtBuilder.build());
   }
 
-  public JSONObject generateTokenResponse(String authHeader, TokenRequestDTO tokenRequestDTO)
+  public JSONObject createAccessTokenForRefreshTokenFlow(TokenRequestDTO tokenRequestDTO)
       throws GenericTokenException {
-    // validate client credentials
-    String[] credentials = this.validateAndExtractCredentials(authHeader);
-    this.validateClientCredentials(credentials);
-    // validate code
-    AuthorizationCode code = this.getAuthCode(tokenRequestDTO.getCode());
-    this.validateRedirectURI(code.getRedirectUri(), tokenRequestDTO.getRedirect_uri());
-    this.validateGrant(tokenRequestDTO.getGrant_type());
-    String nonce = code.getNonce();
-    AccessToken accessToken = this.generateAccessToken(code);
-    String idToken = this.generateIdToken(nonce, accessToken);
+    AccessToken updateToken =
+        accessTokenService.updateToken(
+            this.getTokenByRefreshToken(tokenRequestDTO.getRefresh_token()));
     JSONObject tokenResponse = new JSONObject();
-    tokenResponse.appendField("access_token", accessToken.getToken());
-    if (accessToken.getRefreshToken() != null) {
-      tokenResponse.appendField("refresh_token", accessToken.getRefreshToken());
-    }
+    tokenResponse.appendField("access_token", updateToken.getToken());
     tokenResponse.appendField("token_type", "Bearer");
     tokenResponse.appendField("expires_in", 3600L);
-    tokenResponse.appendField("id_token", idToken);
-    tokenResponse.appendField("scope", String.join(",", accessToken.getApprovedScopes()));
+    tokenResponse.appendField("scope", updateToken.getApprovedScopes());
+
     return tokenResponse;
+  }
+
+  private AccessToken getTokenByRefreshToken(String refreshToken) throws GenericTokenException {
+    try {
+      Assert.notNull(
+          refreshToken,
+          "Param 'refresh_token' cannot be null / empty for grant_type=refresh_token");
+      return accessTokenService.getTokenByRefreshToken(refreshToken);
+    } catch (IllegalArgumentException | AccessTokenNotFoundException e) {
+      throw new GenericTokenException("invalid_token", e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 }

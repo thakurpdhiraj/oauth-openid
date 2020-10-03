@@ -75,19 +75,13 @@ public class AuthorizationUtil {
   }
 
   public void validateScopes(AuthorizeRequestDTO params) throws GenericAuthorizationException {
-    boolean containsOpenId = params.getScope().contains(AllowedScope.OPENID.getValue());
-    if (!containsOpenId) {
-      throw new GenericAuthorizationException(
-          "Invalid scope parameter. scope should contain 'openid'");
-    }
-    boolean valid =
+    Set<String> scopeSet =
         EnumSet.allOf(AllowedScope.class).stream()
             .map(AllowedScope::getValue)
-            .collect(Collectors.toSet())
-            .containsAll(params.getScope());
-    if (!valid) {
-      String collect = AllowedScope.getAllAsString();
-      throw new GenericAuthorizationException("Invalid scope parameter. Allowed scope: " + collect);
+            .collect(Collectors.toSet());
+    if (!scopeSet.containsAll(params.getScope())) {
+      throw new GenericAuthorizationException(
+          "Invalid scope parameter. Allowed scope: " + scopeSet);
     }
   }
 
@@ -121,9 +115,7 @@ public class AuthorizationUtil {
   }
 
   public String createSuccessAuthRedirectURI(
-      AuthorizationCode code, HttpServletRequest request, AuthorizeRequestDTO params) {
-    request.getSession().removeAttribute(AUTH_REQ_ATTRIBUTE_CLIENT);
-    request.getSession().removeAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS);
+      AuthorizationCode code, AuthorizeRequestDTO params) {
     StringBuilder redirect = new StringBuilder(params.getRedirect_uri());
     redirect.append("?code=").append(code.getCode());
     if (params.getState() != null) {

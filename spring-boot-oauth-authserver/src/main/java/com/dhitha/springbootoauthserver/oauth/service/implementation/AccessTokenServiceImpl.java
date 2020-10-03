@@ -19,7 +19,7 @@ public class AccessTokenServiceImpl implements AccessTokenService {
   @Override
   public AccessToken getToken(String token) throws AccessTokenNotFoundException {
     return accessTokenRepository
-        .findById(token)
+        .findByToken(token)
         .filter(accessToken -> accessToken.getAccessTokenExpiry().isAfter(LocalDateTime.now()))
         .orElseThrow(() -> new AccessTokenNotFoundException("Access Token is invalid / expired"));
   }
@@ -41,7 +41,10 @@ public class AccessTokenServiceImpl implements AccessTokenService {
 
   @Override
   public AccessToken updateToken(AccessToken token) {
-    return null;
+    SecureRandom secureRandom = new SecureRandom();
+    token.setToken(String.valueOf(secureRandom.nextLong()));
+    token.setAccessTokenExpiry(LocalDateTime.now().plusMinutes(60));
+    return accessTokenRepository.saveAndFlush(token);
   }
 
   @Override

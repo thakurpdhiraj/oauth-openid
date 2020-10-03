@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
  * @author Dhiraj
  */
 @Repository
-public interface AccessTokenRepository extends JpaRepository<AccessToken, String> {
+public interface AccessTokenRepository extends JpaRepository<AccessToken, Long> {
     Optional<AccessToken> findByRefreshToken(String refreshToken);
+
+    Optional<AccessToken> findByToken(String token);
 }

@@ -1,17 +1,14 @@
 package com.dhitha.springbootoauthserver.oauth.constant;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 public enum AllowedScope {
   OPENID("openid"),
   PROFILE("profile"),
-  READ_USER_BOOK("read.user.book"),
-  CREATE_USER_BOOK("create.user.book"),
-  READ_BOOK("read.book"),
-  CREATE_BOOK("create.book");
+  READ_USER_BOOK("http://localhost:8082/lms/api/read.user.book"),
+  CREATE_USER_BOOK("http://localhost:8082/lms/api/create.user.book"),
+  READ_BOOK("http://localhost:8082/lms/api/read.book"),
+  CREATE_BOOK("http://localhost:8082/lms/api/create.book");
 
-  String value;
+  private final String value;
 
   AllowedScope(String value) {
     this.value = value;
@@ -21,9 +18,4 @@ public enum AllowedScope {
     return value;
   }
 
-  public static String getAllAsString(){
-   return Arrays.stream(AllowedScope.values())
-        .map(AllowedScope::getValue)
-        .collect(Collectors.joining(","));
-  }
 }

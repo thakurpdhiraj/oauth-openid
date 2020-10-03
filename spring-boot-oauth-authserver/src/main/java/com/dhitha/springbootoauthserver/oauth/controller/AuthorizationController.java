@@ -71,7 +71,6 @@ public class AuthorizationController {
       request
           .getSession()
           .setAttribute(AUTH_REQ_ATTRIBUTE_CLIENT, client); // all valid , add client to session
-
       UserOauthApproval userApprovals =
           authorizationUtil.getUserRegisteredApproval(loggedInUser, client);
       log.info(LOG_METHOD + "UserOauthApproval: {}", userApprovals);
@@ -87,12 +86,11 @@ public class AuthorizationController {
         log.info(LOG_METHOD + "scopes: {}", scopeMap);
         return new ModelAndView("oauth_authorize");
       } else {
-
         AuthorizationCode code =
             authorizationUtil.saveCode(
                 reqParams, params.getScope(), client, loggedInUser);
         String redirectURL =
-            authorizationUtil.createSuccessAuthRedirectURI(code, request, reqParams);
+            authorizationUtil.createSuccessAuthRedirectURI(code, reqParams);
         return authorizationUtil.createRedirectView(redirectURL, response, request);
       }
     } catch (Exception e) {
@@ -102,7 +100,6 @@ public class AuthorizationController {
   }
 
   /* *********************POST-> Save and send authorization code****************************** */
-  // TODO: Create POST
 
   @SuppressWarnings("unchecked")
   @PostMapping
@@ -132,7 +129,7 @@ public class AuthorizationController {
               authorizationUtil.saveCode(
                   reqParams, scopeMap.keySet(), client, loggedInUser);
 
-          redirectURI = authorizationUtil.createSuccessAuthRedirectURI(code, request, reqParams);
+          redirectURI = authorizationUtil.createSuccessAuthRedirectURI(code, reqParams);
           break;
 
         case "cancel":
