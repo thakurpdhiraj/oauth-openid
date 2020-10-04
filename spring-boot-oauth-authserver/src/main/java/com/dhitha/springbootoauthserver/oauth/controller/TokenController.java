@@ -54,7 +54,7 @@ public class TokenController {
         tokenResponseDTO =  tokenUtil.createAccessTokenForRefreshTokenFlow(tokenRequestDTO);
         break;
       default:
-        throw new GenericTokenException("invalid_grant","Unexpected value: " + grant, HttpStatus.BAD_REQUEST);
+        throw new GenericTokenException("unsupported_grant_type","Unexpected value: " + grant, HttpStatus.BAD_REQUEST);
     }
     return ResponseEntity.ok(tokenResponseDTO);
   }

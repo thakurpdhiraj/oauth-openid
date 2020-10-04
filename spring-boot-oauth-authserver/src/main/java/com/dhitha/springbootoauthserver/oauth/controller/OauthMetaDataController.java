@@ -45,7 +45,11 @@ public class OauthMetaDataController {
       keys.put("keys", Collections.singletonList(jwkJson));
       return ResponseEntity.ok(keys);
     } catch (GenericTokenException e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(
+              new JSONObject()
+                  .appendField("error", "server_error")
+                  .appendField("error_description", "Something went wrong"));
     }
   }
 }

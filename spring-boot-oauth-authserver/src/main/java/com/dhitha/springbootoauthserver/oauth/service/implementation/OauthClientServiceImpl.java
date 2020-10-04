@@ -1,13 +1,11 @@
 package com.dhitha.springbootoauthserver.oauth.service.implementation;
 
 import com.dhitha.springbootoauthserver.oauth.entity.OauthClient;
-import com.dhitha.springbootoauthserver.oauth.error.generic.GenericTokenException;
 import com.dhitha.springbootoauthserver.oauth.error.notfound.OauthClientNotFoundException;
 import com.dhitha.springbootoauthserver.oauth.repository.OauthClientRepository;
 import com.dhitha.springbootoauthserver.oauth.service.OauthClientService;
 import java.util.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 

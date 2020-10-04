@@ -11,7 +11,7 @@ public class GenericAPIException extends Exception{
   private final HttpStatus status;
 
   public GenericAPIException() {
-    super("internal_error");
+    super("server_error");
     this.description = "Something went wrong";
     this.status = HttpStatus.INTERNAL_SERVER_ERROR;
   }

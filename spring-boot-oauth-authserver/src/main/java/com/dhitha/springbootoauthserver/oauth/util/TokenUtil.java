@@ -43,15 +43,17 @@ public class TokenUtil {
       throws GenericTokenException {
     try {
       if (StringUtils.isEmpty(authHeader)) {
-        Assert.notNull(tokenRequestDTO.getClient_id(), "invalid_request");
-        Assert.notNull(tokenRequestDTO.getClient_secret(), "invalid_request");
+        Assert.notNull(tokenRequestDTO.getClient_id(), "Missing client_id parameter");
+        Assert.notNull(tokenRequestDTO.getClient_secret(), "Missing client_secret parameter");
         oauthClientService.validateClientCredentials(
             tokenRequestDTO.getClient_id(), tokenRequestDTO.getClient_secret());
       } else {
         oauthClientService.validateClientCredentials(authHeader);
       }
-    } catch (IllegalArgumentException | OauthClientNotFoundException e) {
+    } catch (IllegalArgumentException e) {
       throw new GenericTokenException("invalid_request", e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (OauthClientNotFoundException e){
+      throw new GenericTokenException("invalid_client", "Invalid Credentials", HttpStatus.UNAUTHORIZED);
     }
   }
 
@@ -89,15 +91,17 @@ public class TokenUtil {
     try {
       Assert.notNull(code, "param 'code' cannot be null / empty");
       return authorizationCodeService.findByCode(code);
-    } catch (IllegalArgumentException | OauthAuthCodeNotFoundException e) {
-      throw new GenericTokenException("invalid_auth_code", e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (IllegalArgumentException  e) {
+      throw new GenericTokenException("invalid_request", e.getMessage(), HttpStatus.BAD_REQUEST);
+    }catch (OauthAuthCodeNotFoundException e) {
+      throw new GenericTokenException("invalid_grant", e.getMessage(), HttpStatus.BAD_REQUEST);
     }
   }
 
   private void validateRedirectURI(String dbURI, String paramURI) throws GenericTokenException {
     if (!dbURI.equals(paramURI))
       throw new GenericTokenException(
-          "invalid_redirect_uri", "the 'redirect_uri' is invalid", HttpStatus.BAD_REQUEST);
+          "invalid_grant", "the 'redirect_uri' is invalid", HttpStatus.UNAUTHORIZED);
   }
 
   private AccessToken generateAccessToken(AuthorizationCode code) {
@@ -147,8 +151,10 @@ public class TokenUtil {
           refreshToken,
           "Param 'refresh_token' cannot be null / empty for grant_type=refresh_token");
       return accessTokenService.getTokenByRefreshToken(refreshToken);
-    } catch (IllegalArgumentException | AccessTokenNotFoundException e) {
-      throw new GenericTokenException("invalid_token", e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (IllegalArgumentException e) {
+      throw new GenericTokenException("invalid_request", e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (AccessTokenNotFoundException e) {
+      throw new GenericTokenException("invalid_grant", e.getMessage(), HttpStatus.BAD_REQUEST);
     }
   }
 }

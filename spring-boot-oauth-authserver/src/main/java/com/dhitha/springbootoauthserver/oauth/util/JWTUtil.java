@@ -36,8 +36,7 @@ public class JWTUtil {
       return jwk.toRSAKey();
     } catch (IOException | JOSEException e) {
       log.error("Error fetching public key ", e);
-      throw new GenericTokenException(
-          "internal_error", "Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new GenericTokenException();
     }
   }
 

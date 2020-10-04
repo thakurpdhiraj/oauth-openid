@@ -32,7 +32,7 @@ public class UserInfoController {
       @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) throws GenericAPIException {
     if (!authHeader.startsWith("Bearer ")) {
       throw new GenericAPIException(
-          "invalid_request", "Invalid credentials", HttpStatus.BAD_REQUEST);
+          "invalid_request", "The request is missing Bearer Authorization Header", HttpStatus.BAD_REQUEST);
     }
     String accessToken = authHeader.substring(7);
     try {
@@ -47,7 +47,7 @@ public class UserInfoController {
       return ResponseEntity.ok(userJson);
     } catch (AccessTokenNotFoundException e) {
       throw new GenericAPIException(
-          "invalid_request", "Invalid credentials", HttpStatus.BAD_REQUEST);
+          "invalid_grant", "Access token is invalid / expired", HttpStatus.UNAUTHORIZED);
     }
   }
 }
