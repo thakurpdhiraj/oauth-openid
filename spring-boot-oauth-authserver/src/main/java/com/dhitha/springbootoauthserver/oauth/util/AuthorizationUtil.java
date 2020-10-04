@@ -31,11 +31,21 @@ import org.springframework.web.servlet.view.RedirectView;
 @Component
 public class AuthorizationUtil {
 
-  @Autowired OauthClientService oauthClientService;
+  private final OauthClientService oauthClientService;
 
-  @Autowired UserOauthApprovalService userOauthApprovalService;
+  private final UserOauthApprovalService userOauthApprovalService;
 
-  @Autowired AuthorizationCodeService authorizationCodeService;
+  private final AuthorizationCodeService authorizationCodeService;
+
+  @Autowired
+  public AuthorizationUtil(
+      OauthClientService oauthClientService,
+      UserOauthApprovalService userOauthApprovalService,
+      AuthorizationCodeService authorizationCodeService) {
+    this.oauthClientService = oauthClientService;
+    this.userOauthApprovalService = userOauthApprovalService;
+    this.authorizationCodeService = authorizationCodeService;
+  }
 
   public UserOauthApproval getUserRegisteredApproval(User loggedInUser, OauthClient client) {
     return userOauthApprovalService.find(loggedInUser, client);
@@ -114,8 +124,7 @@ public class AuthorizationUtil {
     return redirectView;
   }
 
-  public String createSuccessAuthRedirectURI(
-      AuthorizationCode code, AuthorizeRequestDTO params) {
+  public String createSuccessAuthRedirectURI(AuthorizationCode code, AuthorizeRequestDTO params) {
     StringBuilder redirect = new StringBuilder(params.getRedirect_uri());
     redirect.append("?code=").append(code.getCode());
     if (params.getState() != null) {

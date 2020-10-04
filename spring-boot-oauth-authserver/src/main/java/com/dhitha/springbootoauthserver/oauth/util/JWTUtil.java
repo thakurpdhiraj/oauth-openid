@@ -19,14 +19,18 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 /** @author Dhiraj */
 @Component
 @Log4j2
 public class JWTUtil {
-  @Autowired ResourceLoader resourceLoader;
+  private final ResourceLoader resourceLoader;
+
+  @Autowired
+  public JWTUtil(ResourceLoader resourceLoader) {
+    this.resourceLoader = resourceLoader;
+  }
 
   public RSAKey getPublicKey() throws GenericTokenException {
     Resource resource = resourceLoader.getResource("classpath:/certs/lms-public-key.pem");

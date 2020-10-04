@@ -38,7 +38,12 @@ import org.springframework.web.servlet.ModelAndView;
 @Log4j2
 public class AuthorizationController {
 
-  @Autowired AuthorizationUtil authorizationUtil;
+  private final AuthorizationUtil authorizationUtil;
+
+  @Autowired
+  public AuthorizationController(AuthorizationUtil authorizationUtil) {
+    this.authorizationUtil = authorizationUtil;
+  }
 
   // http://localhost:8081/oauth/v1/authorize?client_id=app.lms.1&redirect_uri=http:%2F%2Flocalhost:8181%2Fwholesale&response_type=code&scope=openid;read.user&state=50111
   /* ****************************GET-Show Authorize Page****************************** */
@@ -90,10 +95,8 @@ public class AuthorizationController {
         return mv;
       } else {
         AuthorizationCode code =
-            authorizationUtil.saveCode(
-                reqParams, params.getScope(), client, loggedInUser);
-        String redirectURL =
-            authorizationUtil.createSuccessAuthRedirectURI(code, reqParams);
+            authorizationUtil.saveCode(reqParams, params.getScope(), client, loggedInUser);
+        String redirectURL = authorizationUtil.createSuccessAuthRedirectURI(code, reqParams);
         return authorizationUtil.createRedirectView(redirectURL, response, request);
       }
     } catch (Exception e) {
@@ -129,8 +132,7 @@ public class AuthorizationController {
 
           authorizationUtil.saveUserApproval(client, loggedInUser, scopeMap.keySet());
           AuthorizationCode code =
-              authorizationUtil.saveCode(
-                  reqParams, scopeMap.keySet(), client, loggedInUser);
+              authorizationUtil.saveCode(reqParams, scopeMap.keySet(), client, loggedInUser);
 
           redirectURI = authorizationUtil.createSuccessAuthRedirectURI(code, reqParams);
           break;

@@ -27,7 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Endpoints.TOKEN_ENDPOINT)
 public class TokenController {
 
-  @Autowired TokenUtil tokenUtil;
+  private final TokenUtil tokenUtil;
+
+  @Autowired
+  public TokenController(TokenUtil tokenUtil) {
+    this.tokenUtil = tokenUtil;
+  }
 
   // Basic YXBwLmxtcy4xOnk4WDJZaW8wNWtIaVRzaXNZRTY4
   @PostMapping(
@@ -46,15 +51,16 @@ public class TokenController {
     AllowedGrant grant = tokenUtil.validateAndFetchGrant(tokenRequestDTO.getGrant_type());
 
     JSONObject tokenResponseDTO;
-    switch (grant){
+    switch (grant) {
       case AUTHORIZATION_CODE:
-        tokenResponseDTO =  tokenUtil.createAccessTokenForAuthCodeFlow(tokenRequestDTO);
+        tokenResponseDTO = tokenUtil.createAccessTokenForAuthCodeFlow(tokenRequestDTO);
         break;
       case REFRESH_TOKEN:
-        tokenResponseDTO =  tokenUtil.createAccessTokenForRefreshTokenFlow(tokenRequestDTO);
+        tokenResponseDTO = tokenUtil.createAccessTokenForRefreshTokenFlow(tokenRequestDTO);
         break;
       default:
-        throw new GenericTokenException("unsupported_grant_type","Unexpected value: " + grant, HttpStatus.BAD_REQUEST);
+        throw new GenericTokenException(
+            "unsupported_grant_type", "Unexpected value: " + grant, HttpStatus.BAD_REQUEST);
     }
     return ResponseEntity.ok(tokenResponseDTO);
   }

@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * Map the login controller for OAuth
@@ -31,9 +30,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @Log4j2
 public class OauthLoginController {
-  @Autowired OauthClientService oauthClientService;
+  private final OauthClientService oauthClientService;
 
-  @Autowired Validator validator;
+  private final Validator validator;
+
+  @Autowired
+  public OauthLoginController(OauthClientService oauthClientService, Validator validator) {
+    this.oauthClientService = oauthClientService;
+    this.validator = validator;
+  }
 
   // http://localhost:8081/oauth/v1/authorize?client_id=app.lms.1&redirect_uri=http:%2F%2Flocalhost:8181%2Fwholesale&response_type=code&scope=openid&state=50111
   @GetMapping(Endpoints.LOGIN_ENDPOINT)
@@ -46,7 +51,7 @@ public class OauthLoginController {
       request.getSession().setAttribute(AUTH_REQ_ATTRIBUTE_CLIENT, oauthClient);
       return "oauth_login";
     } catch (Exception e) {
-      log.error("Error while api login: ",e);
+      log.error("Error while api login: ", e);
       throw new GenericLoginException(e.getMessage());
     }
   }

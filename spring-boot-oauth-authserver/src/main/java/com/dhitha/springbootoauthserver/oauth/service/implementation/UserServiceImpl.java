@@ -1,14 +1,12 @@
 package com.dhitha.springbootoauthserver.oauth.service.implementation;
 
-import com.dhitha.springbootoauthserver.oauth.error.notfound.UserNotFoundException;
 import com.dhitha.springbootoauthserver.oauth.entity.User;
+import com.dhitha.springbootoauthserver.oauth.error.notfound.UserNotFoundException;
 import com.dhitha.springbootoauthserver.oauth.repository.UserRepository;
 import com.dhitha.springbootoauthserver.oauth.service.UserService;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,10 +17,12 @@ import org.springframework.stereotype.Service;
 @Service(value = "userService")
 public class UserServiceImpl implements UserService {
 
-  @Autowired UserRepository userRepository;
+  private final UserRepository userRepository;
 
   @Autowired
-  PasswordEncoder passwordEncoder;
+  public UserServiceImpl(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

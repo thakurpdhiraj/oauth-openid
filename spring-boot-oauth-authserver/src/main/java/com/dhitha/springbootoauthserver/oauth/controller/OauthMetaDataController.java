@@ -24,8 +24,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class OauthMetaDataController {
 
-  @Autowired JWTUtil jwtUtil;
-  @Autowired OpenIdConfigurationDTO configurationDTO;
+  private final JWTUtil jwtUtil;
+  private final OpenIdConfigurationDTO configurationDTO;
+
+  @Autowired
+  public OauthMetaDataController(JWTUtil jwtUtil, OpenIdConfigurationDTO configurationDTO) {
+    this.jwtUtil = jwtUtil;
+    this.configurationDTO = configurationDTO;
+  }
 
   @GetMapping(value = WELL_KNOWN_ENDPOINT)
   public ResponseEntity<?> getOpenIdConfiguration() {

@@ -13,7 +13,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserOauthApprovalServiceImpl implements UserOauthApprovalService {
 
-  @Autowired UserOauthApprovalRepository userOauthApprovalRepository;
+  private final UserOauthApprovalRepository userOauthApprovalRepository;
+
+  @Autowired
+  public UserOauthApprovalServiceImpl(UserOauthApprovalRepository userOauthApprovalRepository) {
+    this.userOauthApprovalRepository = userOauthApprovalRepository;
+  }
 
   @Override
   public UserOauthApproval find(User user, OauthClient client) {

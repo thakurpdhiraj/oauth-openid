@@ -21,7 +21,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
 
-  @Autowired AuthorizationCodeRepository authorizationCodeRepository;
+  private final AuthorizationCodeRepository authorizationCodeRepository;
+
+  @Autowired
+  public AuthorizationCodeServiceImpl(AuthorizationCodeRepository authorizationCodeRepository) {
+    this.authorizationCodeRepository = authorizationCodeRepository;
+  }
 
   @Override
   public AuthorizationCode findByCode(String code) throws OauthAuthCodeNotFoundException {

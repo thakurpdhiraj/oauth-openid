@@ -34,10 +34,22 @@ import org.springframework.util.StringUtils;
 @Log4j2
 public class TokenUtil {
 
-  @Autowired OauthClientService oauthClientService;
-  @Autowired AuthorizationCodeService authorizationCodeService;
-  @Autowired AccessTokenService accessTokenService;
-  @Autowired JWTUtil jwtUtil;
+  private final OauthClientService oauthClientService;
+  private final AuthorizationCodeService authorizationCodeService;
+  private final AccessTokenService accessTokenService;
+  private final JWTUtil jwtUtil;
+
+  @Autowired
+  public TokenUtil(
+      OauthClientService oauthClientService,
+      AuthorizationCodeService authorizationCodeService,
+      AccessTokenService accessTokenService,
+      JWTUtil jwtUtil) {
+    this.oauthClientService = oauthClientService;
+    this.authorizationCodeService = authorizationCodeService;
+    this.accessTokenService = accessTokenService;
+    this.jwtUtil = jwtUtil;
+  }
 
   public void validateClientCredentials(String authHeader, TokenRequestDTO tokenRequestDTO)
       throws GenericTokenException {

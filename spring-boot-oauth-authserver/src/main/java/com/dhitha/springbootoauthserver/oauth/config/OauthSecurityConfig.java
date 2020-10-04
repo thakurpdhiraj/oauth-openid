@@ -27,9 +27,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class OauthSecurityConfig extends WebSecurityConfigurerAdapter {
 
-  @Autowired UserService userService;
+  private final UserService userService;
 
-  @Autowired AuthorizeRequestDTOSetterFilter authorizationReqParamSetterFilter;
+  private final AuthorizeRequestDTOSetterFilter authorizationReqParamSetterFilter;
+
+  @Autowired
+  public OauthSecurityConfig(UserService userService,
+      AuthorizeRequestDTOSetterFilter authorizationReqParamSetterFilter) {
+    this.userService = userService;
+    this.authorizationReqParamSetterFilter = authorizationReqParamSetterFilter;
+  }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {

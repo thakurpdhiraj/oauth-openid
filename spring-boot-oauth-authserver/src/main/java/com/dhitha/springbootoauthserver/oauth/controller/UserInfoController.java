@@ -7,7 +7,6 @@ import com.dhitha.springbootoauthserver.oauth.entity.User;
 import com.dhitha.springbootoauthserver.oauth.error.generic.GenericAPIException;
 import com.dhitha.springbootoauthserver.oauth.error.notfound.AccessTokenNotFoundException;
 import com.dhitha.springbootoauthserver.oauth.service.AccessTokenService;
-import com.dhitha.springbootoauthserver.oauth.service.UserService;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -23,26 +22,29 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Endpoints.USERINFO_ENDPOINT)
 public class UserInfoController {
 
-  @Autowired private UserService userService;
+  private final AccessTokenService accessTokenService;
 
-  @Autowired private AccessTokenService accessTokenService;
+  @Autowired
+  public UserInfoController(AccessTokenService accessTokenService) {
+    this.accessTokenService = accessTokenService;
+  }
 
   @GetMapping
-  public ResponseEntity<?> getUserInfo(
-      @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) throws GenericAPIException {
+  public ResponseEntity<?> getUserInfo(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader)
+      throws GenericAPIException {
     if (!authHeader.startsWith("Bearer ")) {
       throw new GenericAPIException(
-          "invalid_request", "The request is missing Bearer Authorization Header", HttpStatus.BAD_REQUEST);
+          "invalid_request",
+          "The request is missing Bearer Authorization Header",
+          HttpStatus.BAD_REQUEST);
     }
     String accessToken = authHeader.substring(7);
     try {
       AccessToken token = accessTokenService.getToken(accessToken);
       User user = token.getUser();
-      JSONObject userJson = new JSONObject()
-          .appendField("sub", user.getId());
-      if(token.getApprovedScopes().contains(AllowedScope.PROFILE.getValue())){
-          userJson.appendField("name", user.getName())
-              .appendField("email", user.getEmail());
+      JSONObject userJson = new JSONObject().appendField("sub", user.getId());
+      if (token.getApprovedScopes().contains(AllowedScope.PROFILE.getValue())) {
+        userJson.appendField("name", user.getName()).appendField("email", user.getEmail());
       }
       return ResponseEntity.ok(userJson);
     } catch (AccessTokenNotFoundException e) {

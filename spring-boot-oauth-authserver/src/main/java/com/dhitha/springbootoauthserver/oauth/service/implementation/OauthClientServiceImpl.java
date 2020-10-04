@@ -17,7 +17,12 @@ import org.springframework.util.Assert;
 @Service
 public class OauthClientServiceImpl implements OauthClientService {
 
-  @Autowired OauthClientRepository oauthClientRepository;
+  private final OauthClientRepository oauthClientRepository;
+
+  @Autowired
+  public OauthClientServiceImpl(OauthClientRepository oauthClientRepository) {
+    this.oauthClientRepository = oauthClientRepository;
+  }
 
   @Override
   public OauthClient findByClientId(String clientId) throws OauthClientNotFoundException {

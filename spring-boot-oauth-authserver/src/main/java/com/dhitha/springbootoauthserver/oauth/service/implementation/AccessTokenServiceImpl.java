@@ -14,7 +14,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class AccessTokenServiceImpl implements AccessTokenService {
 
-  @Autowired AccessTokenRepository accessTokenRepository;
+  private final AccessTokenRepository accessTokenRepository;
+
+  @Autowired
+  public AccessTokenServiceImpl(AccessTokenRepository accessTokenRepository) {
+    this.accessTokenRepository = accessTokenRepository;
+  }
 
   @Override
   public AccessToken getToken(String token) throws AccessTokenNotFoundException {
