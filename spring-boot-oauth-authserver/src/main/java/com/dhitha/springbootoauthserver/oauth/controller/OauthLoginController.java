@@ -3,6 +3,7 @@ package com.dhitha.springbootoauthserver.oauth.controller;
 import static com.dhitha.springbootoauthserver.oauth.constant.Constants.AUTH_REQ_ATTRIBUTE_CLIENT;
 import static com.dhitha.springbootoauthserver.oauth.constant.Constants.AUTH_REQ_ATTRIBUTE_REQ_PARAMS;
 
+import com.dhitha.springbootoauthserver.oauth.constant.Endpoints;
 import com.dhitha.springbootoauthserver.oauth.dto.AuthorizeRequestDTO;
 import com.dhitha.springbootoauthserver.oauth.entity.OauthClient;
 import com.dhitha.springbootoauthserver.oauth.error.generic.GenericLoginException;
@@ -28,15 +29,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author Dhiraj
  */
 @Controller
-@RequestMapping("oauth/login/v1")
 @Log4j2
 public class OauthLoginController {
   @Autowired OauthClientService oauthClientService;
 
   @Autowired Validator validator;
 
-  // http://localhost:8081/oauth/authorize/v1?client_id=app.lms.1&redirect_uri=http:%2F%2Flocalhost:8181%2Fwholesale&response_type=code&scope=openid&state=50111
-  @GetMapping
+  // http://localhost:8081/oauth/v1/authorize?client_id=app.lms.1&redirect_uri=http:%2F%2Flocalhost:8181%2Fwholesale&response_type=code&scope=openid&state=50111
+  @GetMapping(Endpoints.LOGIN_ENDPOINT)
   public String redirectToLogin(
       HttpServletRequest request, HttpServletResponse response, Model model)
       throws GenericLoginException {

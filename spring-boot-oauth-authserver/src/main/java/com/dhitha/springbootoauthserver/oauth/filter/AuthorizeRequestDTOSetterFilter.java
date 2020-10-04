@@ -3,6 +3,7 @@ package com.dhitha.springbootoauthserver.oauth.filter;
 import static com.dhitha.springbootoauthserver.oauth.constant.Constants.AUTH_REQ_ATTRIBUTE_REQ_PARAMS;
 import static com.dhitha.springbootoauthserver.oauth.constant.Constants.SCOPE_TOKEN;
 
+import com.dhitha.springbootoauthserver.oauth.constant.Endpoints;
 import com.dhitha.springbootoauthserver.oauth.dto.AuthorizeRequestDTO;
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,7 +24,7 @@ public class AuthorizeRequestDTOSetterFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException{
-    String AUTHORIZATION_V1_CONTEXT_PATH = "/oauth/authorize/v1";
+    String AUTHORIZATION_V1_CONTEXT_PATH = Endpoints.AUTHORIZATION_ENDPOINT;
     if (AUTHORIZATION_V1_CONTEXT_PATH.equals(request.getServletPath())) {
       if (request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS) == null) {
 

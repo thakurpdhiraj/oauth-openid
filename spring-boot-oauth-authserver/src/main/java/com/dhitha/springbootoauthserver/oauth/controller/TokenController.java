@@ -1,6 +1,7 @@
 package com.dhitha.springbootoauthserver.oauth.controller;
 
 import com.dhitha.springbootoauthserver.oauth.constant.AllowedGrant;
+import com.dhitha.springbootoauthserver.oauth.constant.Endpoints;
 import com.dhitha.springbootoauthserver.oauth.dto.TokenRequestDTO;
 import com.dhitha.springbootoauthserver.oauth.error.generic.GenericTokenException;
 import com.dhitha.springbootoauthserver.oauth.util.TokenUtil;
@@ -23,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Dhiraj
  */
 @RestController
-@RequestMapping("oauth/token/v1")
+@RequestMapping(Endpoints.TOKEN_ENDPOINT)
 public class TokenController {
 
   @Autowired TokenUtil tokenUtil;

@@ -4,6 +4,7 @@ import static com.dhitha.springbootoauthserver.oauth.constant.Constants.AUTH_REQ
 import static com.dhitha.springbootoauthserver.oauth.constant.Constants.AUTH_REQ_ATTRIBUTE_REQ_PARAMS;
 import static com.dhitha.springbootoauthserver.oauth.constant.Constants.AUTH_REQ_ATTRIBUTE_SCOPE_MAP;
 
+import com.dhitha.springbootoauthserver.oauth.constant.Endpoints;
 import com.dhitha.springbootoauthserver.oauth.dto.AuthorizeRequestDTO;
 import com.dhitha.springbootoauthserver.oauth.entity.AuthorizationCode;
 import com.dhitha.springbootoauthserver.oauth.entity.OauthClient;
@@ -33,13 +34,13 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Dhiraj
  */
 @Controller
-@RequestMapping("oauth/authorize/v1")
+@RequestMapping(Endpoints.AUTHORIZATION_ENDPOINT)
 @Log4j2
 public class AuthorizationController {
 
   @Autowired AuthorizationUtil authorizationUtil;
 
-  // http://localhost:8081/oauth/authorize/v1?client_id=app.lms.1&redirect_uri=http:%2F%2Flocalhost:8181%2Fwholesale&response_type=code&scope=openid;read.user&state=50111
+  // http://localhost:8081/oauth/v1/authorize?client_id=app.lms.1&redirect_uri=http:%2F%2Flocalhost:8181%2Fwholesale&response_type=code&scope=openid;read.user&state=50111
   /* ****************************GET-Show Authorize Page****************************** */
   @GetMapping
   @PreAuthorize("hasRole('ROLE_USER')")
@@ -83,8 +84,10 @@ public class AuthorizationController {
         Map<String, Boolean> scopeMap =
             authorizationUtil.getMapOfScopes(userApprovals.getApprovedScopes(), params.getScope());
         request.getSession().setAttribute(AUTH_REQ_ATTRIBUTE_SCOPE_MAP, scopeMap);
-        log.info(LOG_METHOD + "scopes: {}", scopeMap);
-        return new ModelAndView("oauth_authorize");
+
+        ModelAndView mv = new ModelAndView("oauth_authorize");
+        mv.addObject("post_url", Endpoints.AUTHORIZATION_ENDPOINT);
+        return mv;
       } else {
         AuthorizationCode code =
             authorizationUtil.saveCode(

@@ -113,7 +113,7 @@ public class TokenUtil {
             .claim("nonce", nonce)
             .claim("scope", String.join(", ", token.getApprovedScopes()));
     if (token.getApprovedScopes().contains(AllowedScope.PROFILE.getValue())) {
-      jwtBuilder.claim("name", user.getName());
+      jwtBuilder.claim("name", user.getName()).claim("email", user.getEmail());
     }
     return jwtUtil.signAndSerializeJWT(jwtBuilder.build());
   }

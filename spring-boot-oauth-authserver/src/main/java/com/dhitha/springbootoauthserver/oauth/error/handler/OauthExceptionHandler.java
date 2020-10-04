@@ -4,6 +4,7 @@ import static com.dhitha.springbootoauthserver.oauth.constant.Constants.AUTH_REQ
 import static com.dhitha.springbootoauthserver.oauth.constant.Constants.AUTH_REQ_ATTRIBUTE_REQ_PARAMS;
 import static com.dhitha.springbootoauthserver.oauth.constant.Constants.AUTH_REQ_ATTRIBUTE_SCOPE_MAP;
 
+import com.dhitha.springbootoauthserver.oauth.constant.Endpoints;
 import com.dhitha.springbootoauthserver.oauth.dto.TokenErrorDTO;
 import com.dhitha.springbootoauthserver.oauth.error.generic.GenericAPIException;
 import com.dhitha.springbootoauthserver.oauth.error.generic.GenericWebException;
@@ -39,7 +40,7 @@ public class OauthExceptionHandler {
 
   @ExceptionHandler(value = Exception.class)
   public Object handleGenericError(Exception e, HttpServletRequest request) {
-    if (request.getServletPath().equals("/oauth/token/v1")) {
+    if (request.getServletPath().equals(Endpoints.TOKEN_ENDPOINT)) {
       HttpStatus eStatus = HttpStatus.INTERNAL_SERVER_ERROR;
       if (e instanceof MissingRequestHeaderException
           || e instanceof UnsatisfiedServletRequestParameterException) {

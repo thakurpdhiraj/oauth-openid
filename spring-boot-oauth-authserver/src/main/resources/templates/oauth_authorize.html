@@ -18,7 +18,7 @@
         </div>
         <div class="card-body px-5">
           <h5>Review Permissions</h5>
-          <form th:action="@{/oauth/authorize/v1}" method="post">
+          <form th:action="@{${post_url}}" method="post">
             <div class="form-group">
             Already authorized:
               <ul th:each="scope : ${session.scopeMap.entrySet()}">

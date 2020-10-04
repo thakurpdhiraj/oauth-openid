@@ -1,5 +1,12 @@
 package com.dhitha.springbootoauthserver.oauth.config;
 
+import static com.dhitha.springbootoauthserver.oauth.constant.Endpoints.AUTHORIZATION_ENDPOINT;
+import static com.dhitha.springbootoauthserver.oauth.constant.Endpoints.CERTS_ENDPOINT;
+import static com.dhitha.springbootoauthserver.oauth.constant.Endpoints.LOGIN_ENDPOINT;
+import static com.dhitha.springbootoauthserver.oauth.constant.Endpoints.TOKEN_ENDPOINT;
+import static com.dhitha.springbootoauthserver.oauth.constant.Endpoints.USERINFO_ENDPOINT;
+import static com.dhitha.springbootoauthserver.oauth.constant.Endpoints.WELL_KNOWN_ENDPOINT;
+
 import com.dhitha.springbootoauthserver.oauth.filter.AuthorizeRequestDTOSetterFilter;
 import com.dhitha.springbootoauthserver.oauth.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,30 +27,29 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class OauthSecurityConfig extends WebSecurityConfigurerAdapter {
 
-  @Autowired
-  UserService userService;
+  @Autowired UserService userService;
 
-  @Autowired
-  AuthorizeRequestDTOSetterFilter authorizationReqParamSetterFilter;
+  @Autowired AuthorizeRequestDTOSetterFilter authorizationReqParamSetterFilter;
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http.csrf()
         .disable()
         .authorizeRequests()
-        .antMatchers("/oauth/token/v1")
+        .antMatchers(TOKEN_ENDPOINT, WELL_KNOWN_ENDPOINT, CERTS_ENDPOINT, USERINFO_ENDPOINT)
         .permitAll()
-        .anyRequest()
+        .antMatchers(AUTHORIZATION_ENDPOINT)
         .authenticated()
         .and()
         .formLogin()
-        .loginPage("/oauth/login/v1")
+        .loginPage(LOGIN_ENDPOINT)
         .loginProcessingUrl("/validate_oauth")
-        .failureUrl("/oauth/login/v1?error")
+        .failureUrl(LOGIN_ENDPOINT+"?error")
         .usernameParameter("username")
         .passwordParameter("password")
         .permitAll();
-    http.addFilterBefore(authorizationReqParamSetterFilter, UsernamePasswordAuthenticationFilter.class);
+    http.addFilterBefore(
+        authorizationReqParamSetterFilter, UsernamePasswordAuthenticationFilter.class);
   }
 
   @Override
@@ -52,8 +58,7 @@ public class OauthSecurityConfig extends WebSecurityConfigurerAdapter {
   }
 
   @Bean
-  public PasswordEncoder passwordEncoder(){
+  public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
-
 }
