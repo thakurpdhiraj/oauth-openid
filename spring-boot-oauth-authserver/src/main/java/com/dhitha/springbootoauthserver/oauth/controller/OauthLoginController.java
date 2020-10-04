@@ -6,7 +6,7 @@ import static com.dhitha.springbootoauthserver.oauth.constant.Constants.AUTH_REQ
 import com.dhitha.springbootoauthserver.oauth.constant.Endpoints;
 import com.dhitha.springbootoauthserver.oauth.dto.AuthorizeRequestDTO;
 import com.dhitha.springbootoauthserver.oauth.entity.OauthClient;
-import com.dhitha.springbootoauthserver.oauth.error.generic.GenericLoginException;
+import com.dhitha.springbootoauthserver.oauth.error.generic.GenericWebException;
 import com.dhitha.springbootoauthserver.oauth.error.notfound.OauthClientNotFoundException;
 import com.dhitha.springbootoauthserver.oauth.service.OauthClientService;
 import java.util.Set;
@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * Map the login controller for OAuth
@@ -45,7 +44,7 @@ public class OauthLoginController {
   @GetMapping(Endpoints.LOGIN_ENDPOINT)
   public String redirectToLogin(
       HttpServletRequest request, HttpServletResponse response, Model model)
-      throws GenericLoginException {
+      throws GenericWebException {
     try {
       AuthorizeRequestDTO oauthAuthorizeRequestDTO = validateAndFetchRequestParam(request);
       OauthClient oauthClient = this.findByClientId(oauthAuthorizeRequestDTO.getClient_id());
@@ -53,14 +52,14 @@ public class OauthLoginController {
       return "oauth_login";
     } catch (Exception e) {
       log.error("Error while api login: ",e);
-      throw new GenericLoginException(e.getMessage());
+      throw new GenericWebException(e.getMessage());
     }
   }
 
   private AuthorizeRequestDTO validateAndFetchRequestParam(HttpServletRequest request)
-      throws GenericLoginException {
+      throws GenericWebException {
     if (request == null) {
-      throw new GenericLoginException();
+      throw new GenericWebException();
     }
     AuthorizeRequestDTO oauthAuthorizeRequestDTO =
         (AuthorizeRequestDTO) request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS);
@@ -71,16 +70,16 @@ public class OauthLoginController {
           validate.stream()
               .map(cv -> cv == null ? "null" : cv.getPropertyPath() + ": " + cv.getMessage())
               .collect(Collectors.joining(", "));
-      throw new GenericLoginException(validationException);
+      throw new GenericWebException(validationException);
     }
     return oauthAuthorizeRequestDTO;
   }
 
-  private OauthClient findByClientId(String clientId) throws GenericLoginException {
+  private OauthClient findByClientId(String clientId) throws GenericWebException {
     try {
       return oauthClientService.findByClientId(clientId);
     } catch (OauthClientNotFoundException e) {
-      throw new GenericLoginException(e.getMessage());
+      throw new GenericWebException(e.getMessage());
     }
   }
 }

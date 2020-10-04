@@ -10,7 +10,7 @@ import com.dhitha.springbootoauthserver.oauth.entity.AuthorizationCode;
 import com.dhitha.springbootoauthserver.oauth.entity.OauthClient;
 import com.dhitha.springbootoauthserver.oauth.entity.User;
 import com.dhitha.springbootoauthserver.oauth.entity.UserOauthApproval;
-import com.dhitha.springbootoauthserver.oauth.error.generic.GenericAuthorizationException;
+import com.dhitha.springbootoauthserver.oauth.error.generic.GenericWebException;
 import com.dhitha.springbootoauthserver.oauth.error.notfound.OauthClientNotFoundException;
 import com.dhitha.springbootoauthserver.oauth.service.AuthorizationCodeService;
 import com.dhitha.springbootoauthserver.oauth.service.OauthClientService;
@@ -61,37 +61,35 @@ public class AuthorizationUtil {
   }
 
   public void validateForRequestTampering(AuthorizeRequestDTO params, AuthorizeRequestDTO reqParams)
-      throws GenericAuthorizationException {
+      throws GenericWebException {
     if (!params.equals(reqParams)) {
-      throw new GenericAuthorizationException("Invalid Request");
+      throw new GenericWebException("Invalid Request");
     }
   }
 
-  public void validateResponseType(AuthorizeRequestDTO params)
-      throws GenericAuthorizationException {
+  public void validateResponseType(AuthorizeRequestDTO params) throws GenericWebException {
     String responseType = params.getResponse_type();
     if (!responseType.equals("code")) {
-      throw new GenericAuthorizationException(
+      throw new GenericWebException(
           "Invalid Parameter response_type : " + responseType + ". Only 'code' is allowed ");
     }
   }
 
   public void validateRedirectURI(OauthClient client, AuthorizeRequestDTO params)
-      throws GenericAuthorizationException {
+      throws GenericWebException {
     String redirectURI = params.getRedirect_uri();
     if (!client.getRedirectURIList().contains(redirectURI)) {
-      throw new GenericAuthorizationException("Invalid Parameter redirect_uri : " + redirectURI);
+      throw new GenericWebException("Invalid Parameter redirect_uri : " + redirectURI);
     }
   }
 
-  public void validateScopes(AuthorizeRequestDTO params) throws GenericAuthorizationException {
+  public void validateScopes(AuthorizeRequestDTO params) throws GenericWebException {
     Set<String> scopeSet =
         EnumSet.allOf(AllowedScope.class).stream()
             .map(AllowedScope::getValue)
             .collect(Collectors.toSet());
     if (!scopeSet.containsAll(params.getScope())) {
-      throw new GenericAuthorizationException(
-          "Invalid scope parameter. Allowed scope: " + scopeSet);
+      throw new GenericWebException("Invalid scope parameter. Allowed scope: " + scopeSet);
     }
   }
 
@@ -133,18 +131,18 @@ public class AuthorizationUtil {
     return redirect.toString();
   }
 
-  public OauthClient findByClientId(String clientId) throws GenericAuthorizationException {
+  public OauthClient findByClientId(String clientId) throws GenericWebException {
     try {
       return oauthClientService.findByClientId(clientId);
     } catch (OauthClientNotFoundException e) {
-      throw new GenericAuthorizationException(e.getMessage());
+      throw new GenericWebException(e.getMessage());
     }
   }
 
-  public void validateAccessType(AuthorizeRequestDTO params) throws GenericAuthorizationException {
+  public void validateAccessType(AuthorizeRequestDTO params) throws GenericWebException {
     String accessType = params.getAccess_type();
     if (null != accessType && (!"offline".equals(accessType) && !"online".equals(accessType))) {
-      throw new GenericAuthorizationException(
+      throw new GenericWebException(
           "Invalid 'access_type' parameter. Allowed: 'online', 'offline'");
     }
   }

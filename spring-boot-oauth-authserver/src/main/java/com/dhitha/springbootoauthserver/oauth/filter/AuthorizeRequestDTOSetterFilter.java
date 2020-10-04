@@ -27,6 +27,10 @@ public class AuthorizeRequestDTOSetterFilter extends OncePerRequestFilter {
     String AUTHORIZATION_V1_CONTEXT_PATH = Endpoints.AUTHORIZATION_ENDPOINT;
     if (AUTHORIZATION_V1_CONTEXT_PATH.equals(request.getServletPath())) {
       if (request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS) == null) {
+        String[] client_ids = request.getParameterValues("client_id");
+        if(client_ids == null || client_ids.length > 1){
+
+        }
 
         AuthorizeRequestDTO oauthAuthorizeRequestDTO = new AuthorizeRequestDTO();
         Optional.ofNullable(request.getParameterValues("client_id"))
@@ -44,10 +48,8 @@ public class AuthorizeRequestDTOSetterFilter extends OncePerRequestFilter {
             .ifPresent(strings -> oauthAuthorizeRequestDTO.setState(strings[0]));
         Optional.ofNullable(request.getParameterValues("nonce"))
             .ifPresent(strings -> oauthAuthorizeRequestDTO.setNonce(strings[0]));
-        System.out.println(oauthAuthorizeRequestDTO);
         Optional.ofNullable(request.getParameterValues("access_type"))
             .ifPresent(strings -> oauthAuthorizeRequestDTO.setAccess_type(strings[0]));
-        System.out.println("Filter request: "+oauthAuthorizeRequestDTO);
         request.getSession().setAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS, oauthAuthorizeRequestDTO);
       }
     }

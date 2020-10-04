@@ -10,7 +10,7 @@ import com.dhitha.springbootoauthserver.oauth.entity.AuthorizationCode;
 import com.dhitha.springbootoauthserver.oauth.entity.OauthClient;
 import com.dhitha.springbootoauthserver.oauth.entity.User;
 import com.dhitha.springbootoauthserver.oauth.entity.UserOauthApproval;
-import com.dhitha.springbootoauthserver.oauth.error.generic.GenericAuthorizationException;
+import com.dhitha.springbootoauthserver.oauth.error.generic.GenericWebException;
 import com.dhitha.springbootoauthserver.oauth.util.AuthorizationUtil;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +55,7 @@ public class AuthorizationController {
       HttpServletResponse response,
       @Valid AuthorizeRequestDTO params,
       BindingResult bindingResult)
-      throws GenericAuthorizationException {
+      throws GenericWebException {
     final String LOG_METHOD = "redirectToAuthorize(): ";
     try {
       log.info(
@@ -63,7 +63,7 @@ public class AuthorizationController {
           loggedInUser,
           params);
       if (bindingResult.hasErrors()) {
-        throw new GenericAuthorizationException(bindingResult);
+        throw new GenericWebException(bindingResult);
       }
       AuthorizeRequestDTO reqParams =
           (AuthorizeRequestDTO) request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS);
@@ -101,7 +101,7 @@ public class AuthorizationController {
       }
     } catch (Exception e) {
       log.error(LOG_METHOD + "Error while authorizing:", e);
-      throw new GenericAuthorizationException(e.getMessage());
+      throw new GenericWebException(e.getMessage());
     }
   }
 
@@ -114,7 +114,7 @@ public class AuthorizationController {
       @AuthenticationPrincipal User loggedInUser,
       HttpServletRequest request,
       HttpServletResponse response)
-      throws GenericAuthorizationException {
+      throws GenericWebException {
     final String LOG_METHOD = "submitAuthRequest(): ";
     try {
       String decision = request.getParameter("decision");
@@ -154,12 +154,12 @@ public class AuthorizationController {
           break;
 
         default:
-          throw new GenericAuthorizationException("Invalid Request");
+          throw new GenericWebException("Invalid Request");
       }
       return authorizationUtil.createRedirectView(redirectURI, response, request);
     } catch (Exception e) {
       log.error(LOG_METHOD + "Error while authorizing:", e);
-      throw new GenericAuthorizationException(e.getMessage());
+      throw new GenericWebException(e.getMessage());
     }
   }
 }

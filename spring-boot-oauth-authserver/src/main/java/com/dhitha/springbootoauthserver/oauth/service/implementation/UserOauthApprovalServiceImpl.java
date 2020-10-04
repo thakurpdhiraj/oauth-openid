@@ -30,17 +30,14 @@ public class UserOauthApprovalServiceImpl implements UserOauthApprovalService {
   @Override
   public UserOauthApproval save(OauthClient client, User user, Set<String> scopes) {
     UserOauthApproval oldApprovals = this.find(user, client);
-    System.out.println("old: " + oldApprovals);
     if (oldApprovals == null || oldApprovals.getId() == null) {
       oldApprovals =
           UserOauthApproval.builder().client(client).user(user).approvedScopes(scopes).build();
     } else {
       Set<String> approvedScopes = oldApprovals.getApprovedScopes();
-      System.out.println("appScope: " + approvedScopes);
       if (approvedScopes != null) {
         approvedScopes.addAll(scopes);
       }
-      System.out.println("new scope: " + approvedScopes);
       oldApprovals.setApprovedScopes(approvedScopes);
     }
     return this.save(oldApprovals);
