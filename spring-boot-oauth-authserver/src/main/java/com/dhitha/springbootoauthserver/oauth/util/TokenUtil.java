@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Utility for TokenController
@@ -38,10 +39,18 @@ public class TokenUtil {
   @Autowired AccessTokenService accessTokenService;
   @Autowired JWTUtil jwtUtil;
 
-  public void validateClientCredentials(String authHeader) throws GenericTokenException {
+  public void validateClientCredentials(String authHeader, TokenRequestDTO tokenRequestDTO)
+      throws GenericTokenException {
     try {
-      oauthClientService.validateClientCredentials(authHeader);
-    } catch (OauthClientNotFoundException e) {
+      if (StringUtils.isEmpty(authHeader)) {
+        Assert.notNull(tokenRequestDTO.getClient_id(), "invalid_request");
+        Assert.notNull(tokenRequestDTO.getClient_secret(), "invalid_request");
+        oauthClientService.validateClientCredentials(
+            tokenRequestDTO.getClient_id(), tokenRequestDTO.getClient_secret());
+      } else {
+        oauthClientService.validateClientCredentials(authHeader);
+      }
+    } catch (IllegalArgumentException | OauthClientNotFoundException e) {
       throw new GenericTokenException("invalid_request", e.getMessage(), HttpStatus.BAD_REQUEST);
     }
   }

@@ -34,14 +34,14 @@ public class TokenController {
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ResponseEntity<?> getAccessToken(
-      @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
+      @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authHeader,
       @Valid TokenRequestDTO tokenRequestDTO,
       BindingResult bindingResult)
       throws GenericTokenException {
     if (bindingResult.hasErrors()) {
       throw new GenericTokenException(bindingResult);
     }
-    tokenUtil.validateClientCredentials(authHeader);
+    tokenUtil.validateClientCredentials(authHeader, tokenRequestDTO);
 
     AllowedGrant grant = tokenUtil.validateAndFetchGrant(tokenRequestDTO.getGrant_type());
 

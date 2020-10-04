@@ -24,4 +24,8 @@ public class TokenRequestDTO implements Serializable {
 
   private String refresh_token;
 
+  private String client_id;
+
+  private String client_secret;
+
 }
