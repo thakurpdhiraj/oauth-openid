@@ -1,6 +1,6 @@
 package com.dhitha.springbootoauthserver.oauth.util;
 
-import com.dhitha.springbootoauthserver.oauth.error.generic.GenericTokenException;
+import com.dhitha.springbootoauthserver.oauth.error.generic.GenericAPIException;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -32,7 +32,7 @@ public class JWTUtil {
     this.resourceLoader = resourceLoader;
   }
 
-  public RSAKey getPublicKey() throws GenericTokenException {
+  public RSAKey getPublicKey() throws GenericAPIException {
     Resource resource = resourceLoader.getResource("classpath:/certs/lms-public-key.pem");
     try {
       String keyString = IOUtils.readFileToString(resource.getFile());
@@ -40,11 +40,11 @@ public class JWTUtil {
       return jwk.toRSAKey();
     } catch (IOException | JOSEException e) {
       log.error("Error fetching public key ", e);
-      throw new GenericTokenException();
+      throw new GenericAPIException();
     }
   }
 
-  public RSAKey getPrivateKey() throws GenericTokenException {
+  public RSAKey getPrivateKey() throws GenericAPIException {
     Resource resource = resourceLoader.getResource("classpath:/certs/lms-private-key.pem");
     try {
       String keyString = IOUtils.readFileToString(resource.getFile());
@@ -52,11 +52,11 @@ public class JWTUtil {
       return jwk.toRSAKey();
     } catch (IOException | JOSEException e) {
       log.error("Error fetching public key ", e);
-      throw new GenericTokenException();
+      throw new GenericAPIException();
     }
   }
 
-  public String signAndSerializeJWT(JWTClaimsSet claimsSet) throws GenericTokenException {
+  public String signAndSerializeJWT(JWTClaimsSet claimsSet) throws GenericAPIException {
     try {
       JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).build();
       RSASSASigner rsassaSigner = new RSASSASigner(getPrivateKey());
@@ -65,20 +65,18 @@ public class JWTUtil {
       return signedJWT.serialize();
     } catch (JOSEException e) {
       log.error("Error signing jwt using private key ", e);
-      throw new GenericTokenException();
+      throw new GenericAPIException();
     }
   }
 
-  public boolean verifySignedJWT(String token) throws GenericTokenException {
-    try{
-     SignedJWT signedJWT = SignedJWT.parse(token);
+  public boolean verifySignedJWT(String token) throws GenericAPIException {
+    try {
+      SignedJWT signedJWT = SignedJWT.parse(token);
       JWSVerifier verifier = new RSASSAVerifier(getPublicKey());
       return signedJWT.verify(verifier);
     } catch (ParseException | JOSEException e) {
       log.error("Error verifying jwt using public key ", e);
-      throw new GenericTokenException();
+      throw new GenericAPIException();
     }
   }
-
-
 }

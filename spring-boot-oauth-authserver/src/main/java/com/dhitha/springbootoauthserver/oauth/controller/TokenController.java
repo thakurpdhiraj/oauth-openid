@@ -3,7 +3,7 @@ package com.dhitha.springbootoauthserver.oauth.controller;
 import com.dhitha.springbootoauthserver.oauth.constant.AllowedGrant;
 import com.dhitha.springbootoauthserver.oauth.constant.Endpoints;
 import com.dhitha.springbootoauthserver.oauth.dto.TokenRequestDTO;
-import com.dhitha.springbootoauthserver.oauth.error.generic.GenericTokenException;
+import com.dhitha.springbootoauthserver.oauth.error.generic.GenericAPIException;
 import com.dhitha.springbootoauthserver.oauth.util.TokenUtil;
 import javax.validation.Valid;
 import net.minidev.json.JSONObject;
@@ -42,9 +42,9 @@ public class TokenController {
       @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authHeader,
       @Valid TokenRequestDTO tokenRequestDTO,
       BindingResult bindingResult)
-      throws GenericTokenException {
+      throws GenericAPIException {
     if (bindingResult.hasErrors()) {
-      throw new GenericTokenException(bindingResult);
+      throw new GenericAPIException(bindingResult);
     }
     tokenUtil.validateClientCredentials(authHeader, tokenRequestDTO);
 
@@ -59,7 +59,7 @@ public class TokenController {
         tokenResponseDTO = tokenUtil.createAccessTokenForRefreshTokenFlow(tokenRequestDTO);
         break;
       default:
-        throw new GenericTokenException(
+        throw new GenericAPIException(
             "unsupported_grant_type", "Unexpected value: " + grant, HttpStatus.BAD_REQUEST);
     }
     return ResponseEntity.ok(tokenResponseDTO);

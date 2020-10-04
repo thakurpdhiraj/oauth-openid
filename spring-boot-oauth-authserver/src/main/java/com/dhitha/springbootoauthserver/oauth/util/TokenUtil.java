@@ -6,7 +6,7 @@ import com.dhitha.springbootoauthserver.oauth.dto.TokenRequestDTO;
 import com.dhitha.springbootoauthserver.oauth.entity.AccessToken;
 import com.dhitha.springbootoauthserver.oauth.entity.AuthorizationCode;
 import com.dhitha.springbootoauthserver.oauth.entity.User;
-import com.dhitha.springbootoauthserver.oauth.error.generic.GenericTokenException;
+import com.dhitha.springbootoauthserver.oauth.error.generic.GenericAPIException;
 import com.dhitha.springbootoauthserver.oauth.error.notfound.AccessTokenNotFoundException;
 import com.dhitha.springbootoauthserver.oauth.error.notfound.OauthAuthCodeNotFoundException;
 import com.dhitha.springbootoauthserver.oauth.error.notfound.OauthClientNotFoundException;
@@ -52,7 +52,7 @@ public class TokenUtil {
   }
 
   public void validateClientCredentials(String authHeader, TokenRequestDTO tokenRequestDTO)
-      throws GenericTokenException {
+      throws GenericAPIException {
     try {
       if (StringUtils.isEmpty(authHeader)) {
         Assert.notNull(tokenRequestDTO.getClient_id(), "Missing client_id parameter");
@@ -63,23 +63,24 @@ public class TokenUtil {
         oauthClientService.validateClientCredentials(authHeader);
       }
     } catch (IllegalArgumentException e) {
-      throw new GenericTokenException("invalid_request", e.getMessage(), HttpStatus.BAD_REQUEST);
-    } catch (OauthClientNotFoundException e){
-      throw new GenericTokenException("invalid_client", "Invalid Credentials", HttpStatus.UNAUTHORIZED);
+      throw new GenericAPIException("invalid_request", e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (OauthClientNotFoundException e) {
+      throw new GenericAPIException(
+          "invalid_client", "Invalid Credentials", HttpStatus.UNAUTHORIZED);
     }
   }
 
-  public AllowedGrant validateAndFetchGrant(String grant) throws GenericTokenException {
+  public AllowedGrant validateAndFetchGrant(String grant) throws GenericAPIException {
     try {
       return AllowedGrant.get(grant);
     } catch (IllegalArgumentException e) {
-      throw new GenericTokenException(
+      throw new GenericAPIException(
           "unsupported_grant_type", e.getMessage(), HttpStatus.BAD_REQUEST);
     }
   }
 
   public JSONObject createAccessTokenForAuthCodeFlow(TokenRequestDTO tokenRequestDTO)
-      throws GenericTokenException {
+      throws GenericAPIException {
     AuthorizationCode code = this.getAuthCode(tokenRequestDTO.getCode());
     this.validateRedirectURI(code.getRedirectUri(), tokenRequestDTO.getRedirect_uri());
     String nonce = code.getNonce();
@@ -99,20 +100,20 @@ public class TokenUtil {
     return tokenResponse;
   }
 
-  private AuthorizationCode getAuthCode(String code) throws GenericTokenException {
+  private AuthorizationCode getAuthCode(String code) throws GenericAPIException {
     try {
       Assert.notNull(code, "param 'code' cannot be null / empty");
       return authorizationCodeService.findByCode(code);
-    } catch (IllegalArgumentException  e) {
-      throw new GenericTokenException("invalid_request", e.getMessage(), HttpStatus.BAD_REQUEST);
-    }catch (OauthAuthCodeNotFoundException e) {
-      throw new GenericTokenException("invalid_grant", e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (IllegalArgumentException e) {
+      throw new GenericAPIException("invalid_request", e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (OauthAuthCodeNotFoundException e) {
+      throw new GenericAPIException("invalid_grant", e.getMessage(), HttpStatus.BAD_REQUEST);
     }
   }
 
-  private void validateRedirectURI(String dbURI, String paramURI) throws GenericTokenException {
+  private void validateRedirectURI(String dbURI, String paramURI) throws GenericAPIException {
     if (!dbURI.equals(paramURI))
-      throw new GenericTokenException(
+      throw new GenericAPIException(
           "invalid_grant", "the 'redirect_uri' is invalid", HttpStatus.UNAUTHORIZED);
   }
 
@@ -122,7 +123,7 @@ public class TokenUtil {
     return accessToken;
   }
 
-  private String generateIdToken(String nonce, AccessToken token) throws GenericTokenException {
+  private String generateIdToken(String nonce, AccessToken token) throws GenericAPIException {
     Instant updatedInstant = token.getUpdatedAt().toInstant(ZoneOffset.UTC);
     Instant expiryInstant = token.getAccessTokenExpiry().toInstant(ZoneOffset.UTC);
     User user = token.getUser();
@@ -144,7 +145,7 @@ public class TokenUtil {
   }
 
   public JSONObject createAccessTokenForRefreshTokenFlow(TokenRequestDTO tokenRequestDTO)
-      throws GenericTokenException {
+      throws GenericAPIException {
     AccessToken updateToken =
         accessTokenService.updateToken(
             this.getTokenByRefreshToken(tokenRequestDTO.getRefresh_token()));
@@ -157,16 +158,16 @@ public class TokenUtil {
     return tokenResponse;
   }
 
-  private AccessToken getTokenByRefreshToken(String refreshToken) throws GenericTokenException {
+  private AccessToken getTokenByRefreshToken(String refreshToken) throws GenericAPIException {
     try {
       Assert.notNull(
           refreshToken,
           "Param 'refresh_token' cannot be null / empty for grant_type=refresh_token");
       return accessTokenService.getTokenByRefreshToken(refreshToken);
     } catch (IllegalArgumentException e) {
-      throw new GenericTokenException("invalid_request", e.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new GenericAPIException("invalid_request", e.getMessage(), HttpStatus.BAD_REQUEST);
     } catch (AccessTokenNotFoundException e) {
-      throw new GenericTokenException("invalid_grant", e.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new GenericAPIException("invalid_grant", e.getMessage(), HttpStatus.BAD_REQUEST);
     }
   }
 }

@@ -4,7 +4,7 @@ import static com.dhitha.springbootoauthserver.oauth.constant.Endpoints.CERTS_EN
 import static com.dhitha.springbootoauthserver.oauth.constant.Endpoints.WELL_KNOWN_ENDPOINT;
 
 import com.dhitha.springbootoauthserver.oauth.dto.OpenIdConfigurationDTO;
-import com.dhitha.springbootoauthserver.oauth.error.generic.GenericTokenException;
+import com.dhitha.springbootoauthserver.oauth.error.generic.GenericAPIException;
 import com.dhitha.springbootoauthserver.oauth.util.JWTUtil;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -50,7 +50,7 @@ public class OauthMetaDataController {
       JSONObject keys = new JSONObject();
       keys.put("keys", Collections.singletonList(jwkJson));
       return ResponseEntity.ok(keys);
-    } catch (GenericTokenException e) {
+    } catch (GenericAPIException e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body(
               new JSONObject()
