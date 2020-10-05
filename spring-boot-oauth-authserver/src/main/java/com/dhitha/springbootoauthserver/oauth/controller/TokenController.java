@@ -62,6 +62,10 @@ public class TokenController {
         throw new GenericAPIException(
             "unsupported_grant_type", "Unexpected value: " + grant, HttpStatus.BAD_REQUEST);
     }
-    return ResponseEntity.ok(tokenResponseDTO);
+
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CACHE_CONTROL, "no-store")
+        .header(HttpHeaders.PRAGMA, "no-cache")
+        .body(tokenResponseDTO);
   }
 }

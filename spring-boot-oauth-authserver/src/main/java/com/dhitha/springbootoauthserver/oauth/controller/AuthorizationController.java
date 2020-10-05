@@ -57,52 +57,39 @@ public class AuthorizationController {
       BindingResult bindingResult)
       throws GenericWebException {
     final String LOG_METHOD = "redirectToAuthorize(): ";
-    try {
-      log.info(
-          LOG_METHOD + "Principal: {} is processing for authorization for: {}",
-          loggedInUser,
-          params);
-      if (bindingResult.hasErrors()) {
-        throw new GenericWebException(bindingResult);
-      }
-      AuthorizeRequestDTO reqParams =
-          (AuthorizeRequestDTO) request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS);
-      log.info(LOG_METHOD + "Parameter in Session request: {}", reqParams);
-      OauthClient client = (OauthClient)  request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_CLIENT);
-      log.info(LOG_METHOD + "Client in Session request: {}", client);
-      authorizationUtil.validateForRequestTampering(params, reqParams);
-      authorizationUtil.validateRedirectURI(client, params);
-      authorizationUtil.validateScopes(params);
-      authorizationUtil.validateResponseType(params);
-      authorizationUtil.validateAccessType(params);
-//      request
-//          .getSession()
-//          .setAttribute(AUTH_REQ_ATTRIBUTE_CLIENT, client); // all valid , add client to session
-      UserOauthApproval userApprovals =
-          authorizationUtil.getUserRegisteredApproval(loggedInUser, client);
-      log.info(LOG_METHOD + "UserOauthApproval: {}", userApprovals);
-      boolean requestedScopesApproved =
-          authorizationUtil.hasUserApprovedAllRequestedScopes(
-              userApprovals.getApprovedScopes(), params.getScope());
-      log.info(LOG_METHOD + "userApprovedAllRequestedScopes: {}", requestedScopesApproved);
+    log.info(
+        LOG_METHOD + "Principal: {} is processing for authorization for: {}", loggedInUser, params);
+    if (bindingResult.hasErrors()) {
+      throw new GenericWebException(bindingResult);
+    }
+    AuthorizeRequestDTO reqParams =
+        (AuthorizeRequestDTO) request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS);
+    log.info(LOG_METHOD + "Parameter in Session request: {}", reqParams);
+    OauthClient client = (OauthClient) request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_CLIENT);
+    log.info(LOG_METHOD + "Client in Session request: {}", client);
+    authorizationUtil.validateParams(params, reqParams, client);
 
-      if (!requestedScopesApproved) {
-        Map<String, Boolean> scopeMap =
-            authorizationUtil.getMapOfScopes(userApprovals.getApprovedScopes(), params.getScope());
-        request.getSession().setAttribute(AUTH_REQ_ATTRIBUTE_SCOPE_MAP, scopeMap);
+    UserOauthApproval userApprovals =
+        authorizationUtil.getUserRegisteredApproval(loggedInUser, client);
+    log.info(LOG_METHOD + "UserOauthApproval: {}", userApprovals);
+    boolean requestedScopesApproved =
+        authorizationUtil.hasUserApprovedAllRequestedScopes(
+            userApprovals.getApprovedScopes(), params.getScope());
+    log.info(LOG_METHOD + "userApprovedAllRequestedScopes: {}", requestedScopesApproved);
 
-        ModelAndView mv = new ModelAndView("oauth_authorize");
-        mv.addObject("post_url", Endpoints.AUTHORIZATION_ENDPOINT);
-        return mv;
-      } else {
-        AuthorizationCode code =
-            authorizationUtil.saveCode(reqParams, params.getScope(), client, loggedInUser);
-        String redirectURL = authorizationUtil.createSuccessAuthRedirectURI(code, reqParams);
-        return authorizationUtil.createRedirectView(redirectURL, response, request);
-      }
-    } catch (Exception e) {
-      log.error(LOG_METHOD + "Error while authorizing:", e);
-      throw new GenericWebException(e.getMessage());
+    if (!requestedScopesApproved) {
+      Map<String, Boolean> scopeMap =
+          authorizationUtil.getMapOfScopes(userApprovals.getApprovedScopes(), params.getScope());
+      request.getSession().setAttribute(AUTH_REQ_ATTRIBUTE_SCOPE_MAP, scopeMap);
+
+      ModelAndView mv = new ModelAndView("oauth_authorize");
+      mv.addObject("post_url", Endpoints.AUTHORIZATION_ENDPOINT);
+      return mv;
+    } else {
+      AuthorizationCode code =
+          authorizationUtil.saveCode(reqParams, params.getScope(), client, loggedInUser);
+      String redirectURL = authorizationUtil.createSuccessAuthRedirectURI(code, reqParams);
+      return authorizationUtil.createRedirectView(redirectURL, response, request);
     }
   }
 
@@ -117,50 +104,35 @@ public class AuthorizationController {
       HttpServletResponse response)
       throws GenericWebException {
     final String LOG_METHOD = "submitAuthRequest(): ";
-    try {
-      String decision = request.getParameter("decision");
-      log.info(LOG_METHOD + "decision: {}", decision);
-      String redirectURI;
-      AuthorizeRequestDTO reqParams =
-          (AuthorizeRequestDTO) request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS);
-      switch (decision) {
-        case "authorize":
-          OauthClient client =
-              (OauthClient) request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_CLIENT);
-          Map<String, Boolean> scopeMap =
-              (HashMap<String, Boolean>)
-                  request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_SCOPE_MAP);
+    String decision = request.getParameter("decision");
+    log.info(LOG_METHOD + "decision: {}", decision);
+    String redirectURI;
+    AuthorizeRequestDTO reqParams =
+        (AuthorizeRequestDTO) request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS);
+    switch (decision) {
+      case "authorize":
+        OauthClient client =
+            (OauthClient) request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_CLIENT);
+        Map<String, Boolean> scopeMap =
+            (HashMap<String, Boolean>)
+                request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_SCOPE_MAP);
 
-          authorizationUtil.saveUserApproval(client, loggedInUser, scopeMap.keySet());
-          AuthorizationCode code =
-              authorizationUtil.saveCode(reqParams, scopeMap.keySet(), client, loggedInUser);
+        authorizationUtil.saveUserApproval(client, loggedInUser, scopeMap.keySet());
+        AuthorizationCode code =
+            authorizationUtil.saveCode(reqParams, scopeMap.keySet(), client, loggedInUser);
 
-          redirectURI = authorizationUtil.createSuccessAuthRedirectURI(code, reqParams);
-          break;
+        redirectURI = authorizationUtil.createSuccessAuthRedirectURI(code, reqParams);
+        return authorizationUtil.createRedirectView(redirectURI, response, request);
 
-        case "cancel":
-          String error = "access_denied";
-          String errorDescription = "The user rejected permission to the requested scope";
-          StringBuilder redirect =
-              new StringBuilder()
-                  .append(reqParams.getRedirect_uri())
-                  .append("?error=")
-                  .append(error)
-                  .append("&error_description=")
-                  .append(errorDescription);
-          if (reqParams.getState() != null) {
-            redirect.append("&state=").append(reqParams.getState());
-          }
-          redirectURI = redirect.toString();
-          break;
+      case "cancel":
+        String error = "access_denied";
+        String errorDescription = "The user rejected permission to the requested scope";
+        throw new GenericWebException(
+            error, errorDescription, reqParams.getRedirect_uri(), reqParams.getState());
 
-        default:
-          throw new GenericWebException("Invalid Request");
-      }
-      return authorizationUtil.createRedirectView(redirectURI, response, request);
-    } catch (Exception e) {
-      log.error(LOG_METHOD + "Error while authorizing:", e);
-      throw new GenericWebException(e.getMessage());
+      default:
+        throw new GenericWebException(
+            "invalid_request", "Invalid Request", Endpoints.OAUTH_ERROR_ENDPOINT);
     }
   }
 }

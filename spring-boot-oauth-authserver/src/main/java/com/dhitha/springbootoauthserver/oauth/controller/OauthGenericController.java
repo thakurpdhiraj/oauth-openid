@@ -22,8 +22,8 @@ public class OauthGenericController {
   }
 
   @GetMapping(Endpoints.OAUTH_ERROR_ENDPOINT)
-  public String redirectToError(@RequestParam("error") String error,
-      @RequestParam("error_description") String error_description,
+  public String redirectToError(@RequestParam(value = "error",required = false) String error,
+      @RequestParam(value = "error_description",required = false) String error_description,
       Model model){
     model.addAttribute("error", error);
     model.addAttribute("error_description", error_description);
