@@ -1,18 +1,22 @@
 package com.dhitha.springbootoauthserver.oauth.filter;
 
+import static com.dhitha.springbootoauthserver.oauth.constant.Constants.AUTH_REQ_ATTRIBUTE_CLIENT;
 import static com.dhitha.springbootoauthserver.oauth.constant.Constants.AUTH_REQ_ATTRIBUTE_REQ_PARAMS;
 import static com.dhitha.springbootoauthserver.oauth.constant.Constants.SCOPE_TOKEN;
 
 import com.dhitha.springbootoauthserver.oauth.constant.Endpoints;
 import com.dhitha.springbootoauthserver.oauth.dto.AuthorizeRequestDTO;
+import com.dhitha.springbootoauthserver.oauth.entity.OauthClient;
+import com.dhitha.springbootoauthserver.oauth.error.notfound.OauthClientNotFoundException;
+import com.dhitha.springbootoauthserver.oauth.service.OauthClientService;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Optional;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -20,45 +24,80 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class AuthorizeRequestDTOSetterFilter extends OncePerRequestFilter {
 
+  private final OauthClientService oauthClientService;
+
+  @Autowired
+  public AuthorizeRequestDTOSetterFilter(OauthClientService oauthClientService) {
+    this.oauthClientService = oauthClientService;
+  }
+
   @Override
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException{
-    String AUTHORIZATION_V1_CONTEXT_PATH = Endpoints.AUTHORIZATION_ENDPOINT;
-    if (AUTHORIZATION_V1_CONTEXT_PATH.equals(request.getServletPath())) {
+    if (Endpoints.AUTHORIZATION_ENDPOINT.equals(request.getServletPath())) {
+      String redirectURI = Endpoints.OAUTH_ERROR_ENDPOINT;
       if (request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS) == null) {
         String[] client_ids = request.getParameterValues("client_id");
-        if(client_ids == null || client_ids.length > 1){
-
+        if(client_ids == null || client_ids.length != 1){
+          redirectToError(response, "Required param 'client_id' missing",redirectURI);
+          return;
         }
+        String[] redirect_uris = request.getParameterValues("redirect_uri");
+        if(redirect_uris == null || redirect_uris.length != 1){
+          redirectToError(response, "Required param 'redirect_uri' missing",redirectURI);
+          return;
+        }
+        OauthClient client;
+        try {
+          System.out.println("Testing for client===="+client_ids[0]);
+          client = oauthClientService.findByClientId(client_ids[0]);
+          if(client.getRedirectURIList().contains(redirect_uris[0])){
+            redirectURI = redirect_uris[0];
+          }else{
+            redirectToError(response, "Invalid Client",redirectURI);
+            return;
+          }
+        } catch (OauthClientNotFoundException e) {
+          redirectToError(response, "OAuth client not found",redirectURI);
+          return;
+        }
+        String[] scope = request.getParameterValues("scope");
+        if(scope == null || scope.length != 1){
+          redirectToError(response, "Required param 'scope' missing",redirectURI);
+          return;
+        }
+        String[] response_type = request.getParameterValues("response_type");
+        if(response_type == null || response_type.length != 1){
+          redirectToError(response, "Required param 'response_type' missing",redirectURI);
+          return;
+        }
+        String[] state = request.getParameterValues("state");
+        String[] nonce = request.getParameterValues("nonce");
+        String[] access_type = request.getParameterValues("access_type");
 
-        AuthorizeRequestDTO oauthAuthorizeRequestDTO = new AuthorizeRequestDTO();
-        Optional.ofNullable(request.getParameterValues("client_id"))
-            .ifPresent(strings -> oauthAuthorizeRequestDTO.setClient_id(strings[0]));
-        Optional.ofNullable(request.getParameterValues("redirect_uri"))
-            .ifPresent(strings -> oauthAuthorizeRequestDTO.setRedirect_uri(strings[0]));
-        Optional.ofNullable(request.getParameterValues("scope"))
-            .ifPresent(
-                strings ->
-                    oauthAuthorizeRequestDTO.setScope(
-                        new HashSet<>(Arrays.asList(strings[0].split(SCOPE_TOKEN)))));
-        Optional.ofNullable(request.getParameterValues("response_type"))
-            .ifPresent(strings -> oauthAuthorizeRequestDTO.setResponse_type(strings[0]));
-        Optional.ofNullable(request.getParameterValues("state"))
-            .ifPresent(strings -> oauthAuthorizeRequestDTO.setState(strings[0]));
-        Optional.ofNullable(request.getParameterValues("nonce"))
-            .ifPresent(strings -> oauthAuthorizeRequestDTO.setNonce(strings[0]));
-        Optional.ofNullable(request.getParameterValues("access_type"))
-            .ifPresent(strings -> oauthAuthorizeRequestDTO.setAccess_type(strings[0]));
+        AuthorizeRequestDTO oauthAuthorizeRequestDTO = AuthorizeRequestDTO.builder()
+            .client_id(client_ids[0])
+            .redirect_uri(redirect_uris[0])
+            .scope(new HashSet<>(Arrays.asList(scope[0].split(SCOPE_TOKEN))))
+            .response_type(response_type[0])
+            .state(state != null ? state[0] : null)
+            .nonce(nonce != null ? nonce[0] : null)
+            .access_type(access_type != null ? access_type[0] : null)
+            .build();
         request.getSession().setAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS, oauthAuthorizeRequestDTO);
+        request.getSession().setAttribute(AUTH_REQ_ATTRIBUTE_CLIENT, client);
       }
     }
     filterChain.doFilter(request, response);
-
   }
 
   @Override
   protected String getAlreadyFilteredAttributeName() {
     return "ONCE";
+  }
+
+  private void redirectToError(HttpServletResponse response, String errorDescription, String redirectURI) throws IOException {
+    response.sendRedirect(redirectURI+"?error=invalid_request&error_description="+errorDescription+"");
   }
 }

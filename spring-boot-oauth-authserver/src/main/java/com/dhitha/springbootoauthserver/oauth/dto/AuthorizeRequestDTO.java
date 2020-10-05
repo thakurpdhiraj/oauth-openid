@@ -4,6 +4,8 @@ import com.dhitha.springbootoauthserver.oauth.converter.RequiresSetToStringConve
 import java.io.Serializable;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +16,8 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class AuthorizeRequestDTO implements Serializable {
   private static final long serialVersionUID = 1;
 

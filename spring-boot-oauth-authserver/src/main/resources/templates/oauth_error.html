@@ -5,7 +5,8 @@
   <title>Error</title>
 </head>
 <body>
-<h2>Error</h2>
-<ul th:each="err : ${errors}"><li th:text="${err}"></li></ul>
+<h2>Oauth Error</h2>
+<h3 th:text="${error}"></h3>
+<h3 th:text="${error_description}"></h3>
 </body>
 </html>

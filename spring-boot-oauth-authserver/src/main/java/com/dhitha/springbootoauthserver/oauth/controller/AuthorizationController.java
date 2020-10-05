@@ -68,15 +68,16 @@ public class AuthorizationController {
       AuthorizeRequestDTO reqParams =
           (AuthorizeRequestDTO) request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS);
       log.info(LOG_METHOD + "Parameter in Session request: {}", reqParams);
-      OauthClient client = authorizationUtil.findByClientId(params.getClient_id());
+      OauthClient client = (OauthClient)  request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_CLIENT);
+      log.info(LOG_METHOD + "Client in Session request: {}", client);
       authorizationUtil.validateForRequestTampering(params, reqParams);
       authorizationUtil.validateRedirectURI(client, params);
       authorizationUtil.validateScopes(params);
       authorizationUtil.validateResponseType(params);
       authorizationUtil.validateAccessType(params);
-      request
-          .getSession()
-          .setAttribute(AUTH_REQ_ATTRIBUTE_CLIENT, client); // all valid , add client to session
+//      request
+//          .getSession()
+//          .setAttribute(AUTH_REQ_ATTRIBUTE_CLIENT, client); // all valid , add client to session
       UserOauthApproval userApprovals =
           authorizationUtil.getUserRegisteredApproval(loggedInUser, client);
       log.info(LOG_METHOD + "UserOauthApproval: {}", userApprovals);

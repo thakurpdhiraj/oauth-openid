@@ -13,4 +13,5 @@ public class Endpoints {
   public static final String CERTS_ENDPOINT = "/oauth/v1/certs";
   public static final String WELL_KNOWN_ENDPOINT = "/.well-known/openid-configuration";
 
+  public static final String OAUTH_ERROR_ENDPOINT = "/oauth/v1/error";
 }
