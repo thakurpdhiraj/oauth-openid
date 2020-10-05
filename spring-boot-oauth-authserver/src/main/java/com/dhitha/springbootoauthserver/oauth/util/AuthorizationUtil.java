@@ -14,7 +14,6 @@ import com.dhitha.springbootoauthserver.oauth.entity.UserOauthApproval;
 import com.dhitha.springbootoauthserver.oauth.error.generic.GenericWebException;
 import com.dhitha.springbootoauthserver.oauth.service.AuthorizationCodeService;
 import com.dhitha.springbootoauthserver.oauth.service.UserOauthApprovalService;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -157,17 +156,16 @@ public class AuthorizationUtil {
     request.getSession().removeAttribute(AUTH_REQ_ATTRIBUTE_CLIENT);
     request.getSession().removeAttribute(AUTH_REQ_ATTRIBUTE_SCOPE_MAP);
     RedirectView redirectView = new RedirectView(urlToRedirect);
+    redirectView.setEncodingScheme(StandardCharsets.UTF_8.toString());
     redirectView.setStatusCode(HttpStatus.FOUND);
     return redirectView;
   }
 
   public String createSuccessAuthRedirectURI(AuthorizationCode code, AuthorizeRequestDTO params) {
     StringBuilder redirect = new StringBuilder(params.getRedirect_uri());
-    redirect.append(URLEncoder.encode("?code=", StandardCharsets.UTF_8))
-        .append(URLEncoder.encode(code.getCode(), StandardCharsets.UTF_8));
+    redirect.append("?code=").append(code.getCode());
     if (params.getState() != null) {
-      redirect.append(URLEncoder.encode("&state=", StandardCharsets.UTF_8))
-          .append(URLEncoder.encode(params.getState(), StandardCharsets.UTF_8));
+      redirect.append("&state=").append(params.getState());
     }
     return redirect.toString();
   }

@@ -6,7 +6,6 @@ import static com.dhitha.springbootoauthserver.oauth.constant.Constants.AUTH_REQ
 
 import com.dhitha.springbootoauthserver.oauth.error.generic.GenericAPIException;
 import com.dhitha.springbootoauthserver.oauth.error.generic.GenericWebException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,17 +31,17 @@ public class OauthExceptionHandler {
       GenericWebException e, HttpServletRequest request, HttpServletResponse response) {
     cleanUpSessionAttributes(request);
     StringBuilder redirect = new StringBuilder();
-    redirect.append(e.getRedirectUri())
-        .append(URLEncoder.encode("?error=", StandardCharsets.UTF_8))
-        .append(URLEncoder.encode(e.getError(), StandardCharsets.UTF_8))
-        .append(URLEncoder.encode("&error_description=", StandardCharsets.UTF_8))
-        .append(URLEncoder.encode(e.getErrorDescription(), StandardCharsets.UTF_8));
-    if(e.getState() != null){
-      redirect.append(URLEncoder.encode("&state=", StandardCharsets.UTF_8))
-          .append(URLEncoder.encode(e.getState(), StandardCharsets.UTF_8));
+    redirect
+        .append(e.getRedirectUri())
+        .append("?error=")
+        .append(e.getError())
+        .append("&error_description=")
+        .append(e.getErrorDescription());
+    if (e.getState() != null) {
+      redirect.append("&state=").append(e.getState());
     }
-    RedirectView redirectView =
-        new RedirectView(redirect.toString());
+    RedirectView redirectView = new RedirectView(redirect.toString());
+    redirectView.setEncodingScheme(StandardCharsets.UTF_8.toString());
     redirectView.setStatusCode(HttpStatus.FOUND);
     return redirectView;
   }

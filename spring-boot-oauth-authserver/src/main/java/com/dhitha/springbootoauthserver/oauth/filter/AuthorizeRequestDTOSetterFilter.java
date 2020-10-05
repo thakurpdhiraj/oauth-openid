@@ -50,7 +50,6 @@ public class AuthorizeRequestDTOSetterFilter extends OncePerRequestFilter {
         }
         OauthClient client;
         try {
-          System.out.println("Testing for client===="+client_ids[0]);
           client = oauthClientService.findByClientId(client_ids[0]);
           if(client.getRedirectURIList().contains(redirect_uris[0])){
             redirectURI = redirect_uris[0];
