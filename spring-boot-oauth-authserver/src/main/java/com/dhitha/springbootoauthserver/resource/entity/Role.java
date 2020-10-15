@@ -1,4 +1,4 @@
-package com.dhitha.springbootoauthserver.oauth.entity;
+package com.dhitha.springbootoauthserver.resource.entity;
 
 import java.io.Serializable;
 import javax.persistence.Column;

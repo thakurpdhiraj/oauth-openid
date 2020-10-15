@@ -1,6 +1,6 @@
-package com.dhitha.springbootoauthserver.oauth.repository;
+package com.dhitha.springbootoauthserver.resource.repository;
 
-import com.dhitha.springbootoauthserver.oauth.entity.User;
+import com.dhitha.springbootoauthserver.resource.entity.User;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

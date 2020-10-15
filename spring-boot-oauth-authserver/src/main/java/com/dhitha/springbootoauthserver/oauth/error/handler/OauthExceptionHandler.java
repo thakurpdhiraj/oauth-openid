@@ -22,7 +22,10 @@ public class OauthExceptionHandler {
 
   @ExceptionHandler(value = {GenericAPIException.class})
   public ResponseEntity<?> handleTokenError(GenericAPIException e) {
-    JSONObject error = new JSONObject().appendField(e.getMessage(), e.getDescription());
+    JSONObject error =
+        new JSONObject()
+            .appendField("error", e.getMessage())
+            .appendField("error_description", e.getDescription());
     return ResponseEntity.status(e.getStatus()).body(error);
   }
 

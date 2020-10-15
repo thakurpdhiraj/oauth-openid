@@ -9,7 +9,7 @@ import com.dhitha.springbootoauthserver.oauth.constant.Endpoints;
 import com.dhitha.springbootoauthserver.oauth.dto.AuthorizeRequestDTO;
 import com.dhitha.springbootoauthserver.oauth.entity.AuthorizationCode;
 import com.dhitha.springbootoauthserver.oauth.entity.OauthClient;
-import com.dhitha.springbootoauthserver.oauth.entity.User;
+import com.dhitha.springbootoauthserver.resource.entity.User;
 import com.dhitha.springbootoauthserver.oauth.entity.UserOauthApproval;
 import com.dhitha.springbootoauthserver.oauth.error.generic.GenericWebException;
 import com.dhitha.springbootoauthserver.oauth.service.AuthorizationCodeService;

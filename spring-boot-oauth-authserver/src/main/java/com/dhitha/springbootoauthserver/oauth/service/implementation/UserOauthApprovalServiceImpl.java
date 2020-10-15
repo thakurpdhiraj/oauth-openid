@@ -1,7 +1,7 @@
 package com.dhitha.springbootoauthserver.oauth.service.implementation;
 
 import com.dhitha.springbootoauthserver.oauth.entity.OauthClient;
-import com.dhitha.springbootoauthserver.oauth.entity.User;
+import com.dhitha.springbootoauthserver.resource.entity.User;
 import com.dhitha.springbootoauthserver.oauth.entity.UserOauthApproval;
 import com.dhitha.springbootoauthserver.oauth.repository.UserOauthApprovalRepository;
 import com.dhitha.springbootoauthserver.oauth.service.UserOauthApprovalService;

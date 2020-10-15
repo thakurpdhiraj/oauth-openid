@@ -3,7 +3,7 @@ package com.dhitha.springbootoauthserver.oauth.service;
 import com.dhitha.springbootoauthserver.oauth.dto.AuthorizeRequestDTO;
 import com.dhitha.springbootoauthserver.oauth.entity.AuthorizationCode;
 import com.dhitha.springbootoauthserver.oauth.entity.OauthClient;
-import com.dhitha.springbootoauthserver.oauth.entity.User;
+import com.dhitha.springbootoauthserver.resource.entity.User;
 import com.dhitha.springbootoauthserver.oauth.error.notfound.OauthAuthCodeNotFoundException;
 import java.util.Set;
 

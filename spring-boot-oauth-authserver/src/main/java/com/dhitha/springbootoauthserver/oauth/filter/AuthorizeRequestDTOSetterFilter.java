@@ -34,61 +34,67 @@ public class AuthorizeRequestDTOSetterFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-      throws ServletException, IOException{
-    if (Endpoints.AUTHORIZATION_ENDPOINT.equals(request.getServletPath())) {
-      String redirectURI = Endpoints.OAUTH_ERROR_ENDPOINT;
-      if (request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS) == null) {
-        String[] client_ids = request.getParameterValues("client_id");
-        if(client_ids == null || client_ids.length != 1){
-          redirectToError(response, "Required param 'client_id' missing",redirectURI);
-          return;
-        }
-        String[] redirect_uris = request.getParameterValues("redirect_uri");
-        if(redirect_uris == null || redirect_uris.length != 1){
-          redirectToError(response, "Required param 'redirect_uri' missing",redirectURI);
-          return;
-        }
-        OauthClient client;
-        try {
-          client = oauthClientService.findByClientId(client_ids[0]);
-          if(client.getRedirectURIList().contains(redirect_uris[0])){
-            redirectURI = redirect_uris[0];
-          }else{
-            redirectToError(response, "Invalid Client",redirectURI);
-            return;
-          }
-        } catch (OauthClientNotFoundException e) {
-          redirectToError(response, "OAuth client not found",redirectURI);
-          return;
-        }
-        String[] scope = request.getParameterValues("scope");
-        if(scope == null || scope.length != 1){
-          redirectToError(response, "Required param 'scope' missing",redirectURI);
-          return;
-        }
-        String[] response_type = request.getParameterValues("response_type");
-        if(response_type == null || response_type.length != 1){
-          redirectToError(response, "Required param 'response_type' missing",redirectURI);
-          return;
-        }
-        String[] state = request.getParameterValues("state");
-        String[] nonce = request.getParameterValues("nonce");
-        String[] access_type = request.getParameterValues("access_type");
-
-        AuthorizeRequestDTO oauthAuthorizeRequestDTO = AuthorizeRequestDTO.builder()
-            .client_id(client_ids[0])
-            .redirect_uri(redirect_uris[0])
-            .scope(new HashSet<>(Arrays.asList(scope[0].split(SCOPE_TOKEN))))
-            .response_type(response_type[0])
-            .state(state != null ? state[0] : null)
-            .nonce(nonce != null ? nonce[0] : null)
-            .access_type(access_type != null ? access_type[0] : null)
-            .build();
-        request.getSession().setAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS, oauthAuthorizeRequestDTO);
-        request.getSession().setAttribute(AUTH_REQ_ATTRIBUTE_CLIENT, client);
+      throws ServletException, IOException {
+    System.out.println("Auth Filter called");
+    String redirectURI = Endpoints.OAUTH_ERROR_ENDPOINT;
+    if (request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS) == null) {
+      String[] client_ids = request.getParameterValues("client_id");
+      if (client_ids == null || client_ids.length != 1) {
+        redirectToError(response, "Required param 'client_id' missing", redirectURI);
+        return;
       }
+      String[] redirect_uris = request.getParameterValues("redirect_uri");
+      if (redirect_uris == null || redirect_uris.length != 1) {
+        redirectToError(response, "Required param 'redirect_uri' missing", redirectURI);
+        return;
+      }
+      OauthClient client;
+      try {
+        client = oauthClientService.findByClientId(client_ids[0]);
+        if (client.getRedirectURIList().contains(redirect_uris[0])) {
+          redirectURI = redirect_uris[0];
+        } else {
+          redirectToError(response, "Invalid Client", redirectURI);
+          return;
+        }
+      } catch (OauthClientNotFoundException e) {
+        redirectToError(response, "OAuth client not found", redirectURI);
+        return;
+      }
+      String[] scope = request.getParameterValues("scope");
+      if (scope == null || scope.length != 1) {
+        redirectToError(response, "Required param 'scope' missing", redirectURI);
+        return;
+      }
+      String[] response_type = request.getParameterValues("response_type");
+      if (response_type == null || response_type.length != 1) {
+        redirectToError(response, "Required param 'response_type' missing", redirectURI);
+        return;
+      }
+      String[] state = request.getParameterValues("state");
+      String[] nonce = request.getParameterValues("nonce");
+      String[] access_type = request.getParameterValues("access_type");
+
+      AuthorizeRequestDTO oauthAuthorizeRequestDTO =
+          AuthorizeRequestDTO.builder()
+              .client_id(client_ids[0])
+              .redirect_uri(redirect_uris[0])
+              .scope(new HashSet<>(Arrays.asList(scope[0].split(SCOPE_TOKEN))))
+              .response_type(response_type[0])
+              .state(state != null ? state[0] : null)
+              .nonce(nonce != null ? nonce[0] : null)
+              .access_type(access_type != null ? access_type[0] : null)
+              .build();
+      request.getSession().setAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS, oauthAuthorizeRequestDTO);
+      request.getSession().setAttribute(AUTH_REQ_ATTRIBUTE_CLIENT, client);
     }
+
     filterChain.doFilter(request, response);
+  }
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    return !Endpoints.AUTHORIZATION_ENDPOINT.equals(request.getServletPath());
   }
 
   @Override
@@ -96,7 +102,10 @@ public class AuthorizeRequestDTOSetterFilter extends OncePerRequestFilter {
     return "ONCE";
   }
 
-  private void redirectToError(HttpServletResponse response, String errorDescription, String redirectURI) throws IOException {
-    response.sendRedirect(redirectURI+"?error=invalid_request&error_description="+errorDescription+"");
+  private void redirectToError(
+      HttpServletResponse response, String errorDescription, String redirectURI)
+      throws IOException {
+    response.sendRedirect(
+        redirectURI + "?error=invalid_request&error_description=" + errorDescription + "");
   }
 }

@@ -1,9 +1,9 @@
-package com.dhitha.springbootoauthserver.oauth.service.implementation;
+package com.dhitha.springbootoauthserver.resource.service.implementation;
 
-import com.dhitha.springbootoauthserver.oauth.entity.User;
+import com.dhitha.springbootoauthserver.resource.entity.User;
 import com.dhitha.springbootoauthserver.oauth.error.notfound.UserNotFoundException;
-import com.dhitha.springbootoauthserver.oauth.repository.UserRepository;
-import com.dhitha.springbootoauthserver.oauth.service.UserService;
+import com.dhitha.springbootoauthserver.resource.repository.UserRepository;
+import com.dhitha.springbootoauthserver.resource.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

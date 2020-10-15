@@ -3,7 +3,7 @@ package com.dhitha.springbootoauthserver.oauth.controller;
 import com.dhitha.springbootoauthserver.oauth.constant.AllowedScope;
 import com.dhitha.springbootoauthserver.oauth.constant.Endpoints;
 import com.dhitha.springbootoauthserver.oauth.entity.AccessToken;
-import com.dhitha.springbootoauthserver.oauth.entity.User;
+import com.dhitha.springbootoauthserver.resource.entity.User;
 import com.dhitha.springbootoauthserver.oauth.error.generic.GenericAPIException;
 import com.dhitha.springbootoauthserver.oauth.error.notfound.AccessTokenNotFoundException;
 import com.dhitha.springbootoauthserver.oauth.service.AccessTokenService;

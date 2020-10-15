@@ -5,7 +5,7 @@ import com.dhitha.springbootoauthserver.oauth.constant.AllowedScope;
 import com.dhitha.springbootoauthserver.oauth.dto.TokenRequestDTO;
 import com.dhitha.springbootoauthserver.oauth.entity.AccessToken;
 import com.dhitha.springbootoauthserver.oauth.entity.AuthorizationCode;
-import com.dhitha.springbootoauthserver.oauth.entity.User;
+import com.dhitha.springbootoauthserver.resource.entity.User;
 import com.dhitha.springbootoauthserver.oauth.error.generic.GenericAPIException;
 import com.dhitha.springbootoauthserver.oauth.error.notfound.AccessTokenNotFoundException;
 import com.dhitha.springbootoauthserver.oauth.error.notfound.OauthAuthCodeNotFoundException;

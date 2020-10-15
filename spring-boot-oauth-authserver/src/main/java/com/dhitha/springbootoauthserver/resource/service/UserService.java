@@ -1,8 +1,7 @@
-package com.dhitha.springbootoauthserver.oauth.service;
+package com.dhitha.springbootoauthserver.resource.service;
 
 import com.dhitha.springbootoauthserver.oauth.error.notfound.UserNotFoundException;
-import com.dhitha.springbootoauthserver.oauth.entity.User;
-import java.util.List;
+import com.dhitha.springbootoauthserver.resource.entity.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
