@@ -31,10 +31,10 @@ lms:
     scopes_supported:
       - openid
       - profile
-      - http://localhost:${server.port}/lms/api/read.user.book
-      - http://localhost:${server.port}/lms/api/create.user.book
-      - http://localhost:${server.port}/lms/api/read.book
-      - http://localhost:${server.port}/lms/api/create.book
+      - read.user.book
+      - create.user.book
+      - read.book
+      - create.book
     response_types_supported:
       - code
     grant_types_supported:
