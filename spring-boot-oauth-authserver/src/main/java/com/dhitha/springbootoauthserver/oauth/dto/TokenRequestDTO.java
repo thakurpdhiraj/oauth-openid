@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * DTO for POST mapping for /auth/token/v1
+ *
  * @author Dhiraj
  */
 @Data
@@ -27,5 +28,4 @@ public class TokenRequestDTO implements Serializable {
   private String client_id;
 
   private String client_secret;
-
 }

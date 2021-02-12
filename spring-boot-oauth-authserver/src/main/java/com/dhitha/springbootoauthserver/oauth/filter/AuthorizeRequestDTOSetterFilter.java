@@ -16,26 +16,28 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-/** @author Dhiraj */
+/**
+ * Filter to validate and set client details in the request session.
+ *
+ * <p>This filter should run for all endpoints except initial authorization request made to
+ * /oauth/v1/authorize
+ *
+ * @author Dhiraj
+ */
 @Component
+@RequiredArgsConstructor
 public class AuthorizeRequestDTOSetterFilter extends OncePerRequestFilter {
 
   private final OauthClientService oauthClientService;
-
-  @Autowired
-  public AuthorizeRequestDTOSetterFilter(OauthClientService oauthClientService) {
-    this.oauthClientService = oauthClientService;
-  }
 
   @Override
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
-    System.out.println("Auth Filter called");
     String redirectURI = Endpoints.OAUTH_ERROR_ENDPOINT;
     if (request.getSession().getAttribute(AUTH_REQ_ATTRIBUTE_REQ_PARAMS) == null) {
       String[] client_ids = request.getParameterValues("client_id");

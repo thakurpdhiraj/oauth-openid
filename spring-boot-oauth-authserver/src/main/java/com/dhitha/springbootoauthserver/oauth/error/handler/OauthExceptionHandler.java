@@ -16,7 +16,11 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.view.RedirectView;
 
-/** @author Dhiraj */
+/**
+ * Generic Exception Handler to manage API & WEB exceptions
+ *
+ * @author Dhiraj
+ */
 @ControllerAdvice
 public class OauthExceptionHandler {
 

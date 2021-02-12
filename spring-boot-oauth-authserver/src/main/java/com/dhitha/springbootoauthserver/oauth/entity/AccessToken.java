@@ -1,7 +1,6 @@
 package com.dhitha.springbootoauthserver.oauth.entity;
 
 import com.dhitha.springbootoauthserver.oauth.converter.StringToSetAttributeConverter;
-import com.dhitha.springbootoauthserver.resource.entity.User;
 import java.time.LocalDateTime;
 import java.util.Set;
 import javax.persistence.Column;
@@ -23,6 +22,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 /**
+ * Entity to store time bound access token / long lived refresh token
+ *
  * @author Dhiraj
  */
 @Entity

@@ -7,19 +7,15 @@ import com.dhitha.springbootoauthserver.oauth.repository.AccessTokenRepository;
 import com.dhitha.springbootoauthserver.oauth.service.AccessTokenService;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /** @author Dhiraj */
 @Service
+@RequiredArgsConstructor
 public class AccessTokenServiceImpl implements AccessTokenService {
 
   private final AccessTokenRepository accessTokenRepository;
-
-  @Autowired
-  public AccessTokenServiceImpl(AccessTokenRepository accessTokenRepository) {
-    this.accessTokenRepository = accessTokenRepository;
-  }
 
   @Override
   public AccessToken getToken(String token) throws AccessTokenNotFoundException {

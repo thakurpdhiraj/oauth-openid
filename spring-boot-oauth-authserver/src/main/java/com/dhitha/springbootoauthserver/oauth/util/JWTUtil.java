@@ -9,28 +9,36 @@ import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.BadJOSEException;
+import com.nimbusds.jose.proc.JWSKeySelector;
+import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jose.util.IOUtils;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import java.io.IOException;
 import java.text.ParseException;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Collections;
+import java.util.HashSet;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 /** @author Dhiraj */
 @Component
-@Log4j2
+@Slf4j
+@RequiredArgsConstructor
 public class JWTUtil {
   private final ResourceLoader resourceLoader;
-
-  @Autowired
-  public JWTUtil(ResourceLoader resourceLoader) {
-    this.resourceLoader = resourceLoader;
-  }
 
   public RSAKey getPublicKey() throws GenericAPIException {
     Resource resource = resourceLoader.getResource("classpath:/certs/lms-public-key.pem");
@@ -76,7 +84,29 @@ public class JWTUtil {
       return signedJWT.verify(verifier);
     } catch (ParseException | JOSEException e) {
       log.error("Error verifying jwt using public key ", e);
-      throw new GenericAPIException();
+      throw new GenericAPIException(
+          "invalid_token", "Token invalid / Expired", HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  public boolean verifyJWT(String token) throws GenericAPIException {
+    try {
+      DefaultJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
+      JWKSet jwkSet = new JWKSet(getPublicKey());
+      JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(jwkSet);
+      JWSKeySelector<SecurityContext> verificationKeySelector =
+          new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource);
+      jwtProcessor.setJWSKeySelector(verificationKeySelector);
+      jwtProcessor.setJWTClaimsSetVerifier(
+          new DefaultJWTClaimsVerifier<>(
+              new JWTClaimsSet.Builder().issuer("http://localhost:8081").build(),
+              new HashSet<>(Collections.singletonList("exp"))));
+      jwtProcessor.process(token, null);
+      return true;
+    } catch (IllegalStateException | ParseException | JOSEException | BadJOSEException e) {
+      log.error("Error verifying jwt using public key ", e);
+      throw new GenericAPIException(
+          "invalid_token", "Token invalid / Expired", HttpStatus.BAD_REQUEST);
     }
   }
 }

@@ -1,7 +1,6 @@
 package com.dhitha.springbootoauthserver.oauth.entity;
 
 import com.dhitha.springbootoauthserver.oauth.converter.StringToSetAttributeConverter;
-import com.dhitha.springbootoauthserver.resource.entity.User;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -26,6 +25,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 /**
  * Entity to store a user's approved scope for a client
+ *
  * @author Dhiraj
  */
 @Entity
@@ -57,13 +57,11 @@ public class UserOauthApproval implements Serializable {
   @Convert(converter = StringToSetAttributeConverter.class)
   private Set<String> approvedScopes;
 
-  @Column(name = "created_at",columnDefinition = "TIMESTAMP")
+  @Column(name = "created_at", columnDefinition = "TIMESTAMP")
   @CreationTimestamp
   private LocalDateTime createdAt;
 
-  @Column(name = "updated_at",columnDefinition = "TIMESTAMP")
+  @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
   @UpdateTimestamp
   private LocalDateTime updatedAt;
-
-
 }

@@ -3,12 +3,12 @@ package com.dhitha.springbootoauthserver.oauth.controller;
 import com.dhitha.springbootoauthserver.oauth.constant.AllowedScope;
 import com.dhitha.springbootoauthserver.oauth.constant.Endpoints;
 import com.dhitha.springbootoauthserver.oauth.entity.AccessToken;
-import com.dhitha.springbootoauthserver.resource.entity.User;
+import com.dhitha.springbootoauthserver.oauth.entity.User;
 import com.dhitha.springbootoauthserver.oauth.error.generic.GenericAPIException;
 import com.dhitha.springbootoauthserver.oauth.error.notfound.AccessTokenNotFoundException;
 import com.dhitha.springbootoauthserver.oauth.service.AccessTokenService;
+import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,17 +18,17 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** @author Dhiraj */
+/**
+ * Get minimal user information for user
+ *
+ * @author Dhiraj
+ */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(Endpoints.USERINFO_ENDPOINT)
 public class UserInfoController {
 
   private final AccessTokenService accessTokenService;
-
-  @Autowired
-  public UserInfoController(AccessTokenService accessTokenService) {
-    this.accessTokenService = accessTokenService;
-  }
 
   @GetMapping
   public ResponseEntity<?> getUserInfo(
@@ -44,9 +44,10 @@ public class UserInfoController {
     try {
       AccessToken token = accessTokenService.getToken(accessToken);
       User user = token.getUser();
-      JSONObject userJson = new JSONObject().appendField("sub", user.getId());
+      JSONObject userJson =
+          new JSONObject().appendField("sub", user.getId()).appendField("name", user.getName());
       if (token.getApprovedScopes().contains(AllowedScope.PROFILE.getValue())) {
-        userJson.appendField("name", user.getName()).appendField("email", user.getEmail());
+        userJson.appendField("email", user.getEmail());
       }
       return ResponseEntity.ok(userJson);
     } catch (AccessTokenNotFoundException e) {

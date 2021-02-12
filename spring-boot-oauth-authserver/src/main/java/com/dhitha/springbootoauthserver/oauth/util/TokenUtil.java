@@ -5,7 +5,7 @@ import com.dhitha.springbootoauthserver.oauth.constant.AllowedScope;
 import com.dhitha.springbootoauthserver.oauth.dto.TokenRequestDTO;
 import com.dhitha.springbootoauthserver.oauth.entity.AccessToken;
 import com.dhitha.springbootoauthserver.oauth.entity.AuthorizationCode;
-import com.dhitha.springbootoauthserver.resource.entity.User;
+import com.dhitha.springbootoauthserver.oauth.entity.User;
 import com.dhitha.springbootoauthserver.oauth.error.generic.GenericAPIException;
 import com.dhitha.springbootoauthserver.oauth.error.notfound.AccessTokenNotFoundException;
 import com.dhitha.springbootoauthserver.oauth.error.notfound.OauthAuthCodeNotFoundException;
@@ -17,9 +17,9 @@ import com.nimbusds.jwt.JWTClaimsSet.Builder;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Date;
-import lombok.extern.log4j.Log4j2;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -31,25 +31,14 @@ import org.springframework.util.StringUtils;
  * @author Dhiraj
  */
 @Component
-@Log4j2
+@Slf4j
+@RequiredArgsConstructor
 public class TokenUtil {
 
   private final OauthClientService oauthClientService;
   private final AuthorizationCodeService authorizationCodeService;
   private final AccessTokenService accessTokenService;
   private final JWTUtil jwtUtil;
-
-  @Autowired
-  public TokenUtil(
-      OauthClientService oauthClientService,
-      AuthorizationCodeService authorizationCodeService,
-      AccessTokenService accessTokenService,
-      JWTUtil jwtUtil) {
-    this.oauthClientService = oauthClientService;
-    this.authorizationCodeService = authorizationCodeService;
-    this.accessTokenService = accessTokenService;
-    this.jwtUtil = jwtUtil;
-  }
 
   public void validateClientCredentials(String authHeader, TokenRequestDTO tokenRequestDTO)
       throws GenericAPIException {

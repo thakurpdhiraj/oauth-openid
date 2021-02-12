@@ -3,7 +3,7 @@ package com.dhitha.springbootoauthserver.oauth.error.notfound;
 import org.springframework.http.HttpStatus;
 
 /**
- * User not found exception corresponding to Status code 404
+ * User not found exception corresponding to Status code 404.
  *
  * @author Dhiraj
  */

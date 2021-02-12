@@ -9,7 +9,7 @@ import com.dhitha.springbootoauthserver.oauth.constant.Endpoints;
 import com.dhitha.springbootoauthserver.oauth.dto.AuthorizeRequestDTO;
 import com.dhitha.springbootoauthserver.oauth.entity.AuthorizationCode;
 import com.dhitha.springbootoauthserver.oauth.entity.OauthClient;
-import com.dhitha.springbootoauthserver.resource.entity.User;
+import com.dhitha.springbootoauthserver.oauth.entity.User;
 import com.dhitha.springbootoauthserver.oauth.entity.UserOauthApproval;
 import com.dhitha.springbootoauthserver.oauth.error.generic.GenericWebException;
 import com.dhitha.springbootoauthserver.oauth.service.AuthorizationCodeService;
@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -29,19 +30,12 @@ import org.springframework.web.servlet.view.RedirectView;
 
 /** @author Dhiraj */
 @Component
+@RequiredArgsConstructor
 public class AuthorizationUtil {
 
   private final UserOauthApprovalService userOauthApprovalService;
 
   private final AuthorizationCodeService authorizationCodeService;
-
-  @Autowired
-  public AuthorizationUtil(
-      UserOauthApprovalService userOauthApprovalService,
-      AuthorizationCodeService authorizationCodeService) {
-    this.userOauthApprovalService = userOauthApprovalService;
-    this.authorizationCodeService = authorizationCodeService;
-  }
 
   public UserOauthApproval getUserRegisteredApproval(User loggedInUser, OauthClient client) {
     return userOauthApprovalService.find(loggedInUser, client);

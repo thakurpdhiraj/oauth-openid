@@ -6,9 +6,13 @@ import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
 
-/** @author Dhiraj */
+/**
+ * Attributes configured in application.yml to be exposed by /.well-known url.
+ *
+ * @author Dhiraj
+ */
 @Getter
-@AllArgsConstructor(onConstructor_={@ConstructorBinding})
+@AllArgsConstructor(onConstructor_ = {@ConstructorBinding})
 @ConfigurationProperties(prefix = "lms.oauth")
 public class OpenIdConfigurationDTO {
   private final String issuer;

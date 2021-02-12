@@ -1,5 +1,6 @@
-package com.dhitha.springbootoauthserver.resource.entity;
+package com.dhitha.springbootoauthserver.oauth.entity;
 
+import com.dhitha.springbootoauthserver.oauth.entity.Role;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;

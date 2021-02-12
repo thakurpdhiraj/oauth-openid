@@ -8,7 +8,7 @@ import com.dhitha.springbootoauthserver.oauth.constant.Endpoints;
 import com.dhitha.springbootoauthserver.oauth.dto.AuthorizeRequestDTO;
 import com.dhitha.springbootoauthserver.oauth.entity.AuthorizationCode;
 import com.dhitha.springbootoauthserver.oauth.entity.OauthClient;
-import com.dhitha.springbootoauthserver.resource.entity.User;
+import com.dhitha.springbootoauthserver.oauth.entity.User;
 import com.dhitha.springbootoauthserver.oauth.entity.UserOauthApproval;
 import com.dhitha.springbootoauthserver.oauth.error.generic.GenericWebException;
 import com.dhitha.springbootoauthserver.oauth.util.AuthorizationUtil;
@@ -17,8 +17,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -35,17 +35,13 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 @RequestMapping(Endpoints.AUTHORIZATION_ENDPOINT)
-@Log4j2
+@Slf4j
+@RequiredArgsConstructor
 public class AuthorizationController {
 
   private final AuthorizationUtil authorizationUtil;
 
-  @Autowired
-  public AuthorizationController(AuthorizationUtil authorizationUtil) {
-    this.authorizationUtil = authorizationUtil;
-  }
-
-  // http://localhost:8081/oauth/v1/authorize?client_id=app.lms.1&redirect_uri=http:%2F%2Flocalhost:8181%2Fwholesale&response_type=code&scope=openid;read.user&state=50111
+  // http://localhost:8081/oauth/v1/authorize?client_id=app.lms.1&redirect_uri=http:%2F%2Flocalhost:8181%2Fwholesale&response_type=code&scope=openid;profile&state=50111
   /* ****************************GET-Show Authorize Page****************************** */
   @GetMapping
   @PreAuthorize("hasRole('ROLE_USER')")

@@ -9,6 +9,7 @@ import com.dhitha.springbootoauthserver.oauth.util.JWTUtil;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import java.util.Collections;
+import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,16 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Dhiraj
  */
 @RestController
+@RequiredArgsConstructor
 public class OauthMetaDataController {
 
   private final JWTUtil jwtUtil;
   private final OpenIdConfigurationDTO configurationDTO;
-
-  @Autowired
-  public OauthMetaDataController(JWTUtil jwtUtil, OpenIdConfigurationDTO configurationDTO) {
-    this.jwtUtil = jwtUtil;
-    this.configurationDTO = configurationDTO;
-  }
 
   @GetMapping(value = WELL_KNOWN_ENDPOINT)
   public ResponseEntity<?> getOpenIdConfiguration() {

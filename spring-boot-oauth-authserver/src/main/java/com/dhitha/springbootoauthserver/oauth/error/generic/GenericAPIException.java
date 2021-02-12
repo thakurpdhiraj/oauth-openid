@@ -7,9 +7,10 @@ import org.springframework.validation.BindingResult;
 
 /**
  * Generic Exception when ResponseEntity is required as response
+ *
  * @author Dhiraj
  */
-public class GenericAPIException extends Exception{
+public class GenericAPIException extends Exception {
   private final String description;
   private final HttpStatus status;
 
@@ -19,11 +20,12 @@ public class GenericAPIException extends Exception{
     this.status = HttpStatus.INTERNAL_SERVER_ERROR;
   }
 
-  public GenericAPIException(BindingResult bindingResult){
+  public GenericAPIException(BindingResult bindingResult) {
     super("invalid_request");
-    this.description = bindingResult.getAllErrors().stream()
-        .map(DefaultMessageSourceResolvable::getDefaultMessage)
-        .collect(Collectors.joining(","));
+    this.description =
+        bindingResult.getAllErrors().stream()
+            .map(DefaultMessageSourceResolvable::getDefaultMessage)
+            .collect(Collectors.joining(","));
     this.status = HttpStatus.BAD_REQUEST;
   }
 

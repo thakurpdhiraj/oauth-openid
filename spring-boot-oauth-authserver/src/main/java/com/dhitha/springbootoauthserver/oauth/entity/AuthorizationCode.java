@@ -1,7 +1,6 @@
 package com.dhitha.springbootoauthserver.oauth.entity;
 
 import com.dhitha.springbootoauthserver.oauth.converter.StringToSetAttributeConverter;
-import com.dhitha.springbootoauthserver.resource.entity.User;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Set;

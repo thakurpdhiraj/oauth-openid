@@ -6,6 +6,7 @@ import com.dhitha.springbootoauthserver.oauth.dto.TokenRequestDTO;
 import com.dhitha.springbootoauthserver.oauth.error.generic.GenericAPIException;
 import com.dhitha.springbootoauthserver.oauth.util.TokenUtil;
 import javax.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -24,15 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Dhiraj
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(Endpoints.TOKEN_ENDPOINT)
 public class TokenController {
 
   private final TokenUtil tokenUtil;
-
-  @Autowired
-  public TokenController(TokenUtil tokenUtil) {
-    this.tokenUtil = tokenUtil;
-  }
 
   // Basic YXBwLmxtcy4xOnk4WDJZaW8wNWtIaVRzaXNZRTY4
   @PostMapping(

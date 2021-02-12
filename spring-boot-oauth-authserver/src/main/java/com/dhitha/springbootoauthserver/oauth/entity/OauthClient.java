@@ -19,7 +19,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 /**
- * Entity for oauth clients
+ * Entity for registering oauth clients
  *
  * @author Dhiraj
  */
@@ -69,5 +69,4 @@ public class OauthClient {
   @Column(columnDefinition = "TIMESTAMP")
   @UpdateTimestamp
   private LocalDateTime updatedAt;
-
 }

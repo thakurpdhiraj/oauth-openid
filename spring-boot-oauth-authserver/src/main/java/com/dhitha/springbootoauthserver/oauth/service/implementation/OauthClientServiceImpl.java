@@ -5,24 +5,20 @@ import com.dhitha.springbootoauthserver.oauth.error.notfound.OauthClientNotFound
 import com.dhitha.springbootoauthserver.oauth.repository.OauthClientRepository;
 import com.dhitha.springbootoauthserver.oauth.service.OauthClientService;
 import java.util.Base64;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 /**
- * Service class to handle {@link OauthClient}
+ * Implementation for {@link OauthClientService}
  *
  * @author Dhiraj
  */
 @Service
+@RequiredArgsConstructor
 public class OauthClientServiceImpl implements OauthClientService {
 
   private final OauthClientRepository oauthClientRepository;
-
-  @Autowired
-  public OauthClientServiceImpl(OauthClientRepository oauthClientRepository) {
-    this.oauthClientRepository = oauthClientRepository;
-  }
 
   @Override
   public OauthClient findByClientId(String clientId) throws OauthClientNotFoundException {
@@ -44,16 +40,15 @@ public class OauthClientServiceImpl implements OauthClientService {
   }
 
   @Override
-  public void validateClientCredentials(String authHeader)
-      throws OauthClientNotFoundException{
+  public void validateClientCredentials(String authHeader) throws OauthClientNotFoundException {
     String encodedCredentials = null;
     try {
       Assert.hasLength(authHeader, "'Basic Authorization' header must not be empty");
-      if(authHeader.startsWith("Basic ")){
+      if (authHeader.startsWith("Basic ")) {
         encodedCredentials = authHeader.substring(6);
       }
       Assert.hasLength(encodedCredentials, "Invalid 'Basic Authorization' header");
-      String[] credentials =  new String(Base64.getDecoder().decode(encodedCredentials)).split(":");
+      String[] credentials = new String(Base64.getDecoder().decode(encodedCredentials)).split(":");
       if (credentials.length != 2) {
         throw new IllegalArgumentException("Invalid client_id / client_secret");
       }

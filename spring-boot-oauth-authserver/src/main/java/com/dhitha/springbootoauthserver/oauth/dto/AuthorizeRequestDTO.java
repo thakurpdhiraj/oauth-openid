@@ -10,7 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Query params dto for authorization request
+ * Request dto for authorization request
  *
  * @author Dhiraj
  */

@@ -1,24 +1,24 @@
 package com.dhitha.springbootoauthserver.oauth.service.implementation;
 
 import com.dhitha.springbootoauthserver.oauth.entity.OauthClient;
-import com.dhitha.springbootoauthserver.resource.entity.User;
+import com.dhitha.springbootoauthserver.oauth.entity.User;
 import com.dhitha.springbootoauthserver.oauth.entity.UserOauthApproval;
 import com.dhitha.springbootoauthserver.oauth.repository.UserOauthApprovalRepository;
 import com.dhitha.springbootoauthserver.oauth.service.UserOauthApprovalService;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-/** @author Dhiraj */
+/**
+ * Implementation for {@link UserOauthApprovalService}
+ *
+ * @author Dhiraj
+ */
 @Service
+@RequiredArgsConstructor
 public class UserOauthApprovalServiceImpl implements UserOauthApprovalService {
 
   private final UserOauthApprovalRepository userOauthApprovalRepository;
-
-  @Autowired
-  public UserOauthApprovalServiceImpl(UserOauthApprovalRepository userOauthApprovalRepository) {
-    this.userOauthApprovalRepository = userOauthApprovalRepository;
-  }
 
   @Override
   public UserOauthApproval find(User user, OauthClient client) {

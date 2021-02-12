@@ -3,16 +3,20 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/boot_oauth_server
+    url: jdbc:h2:mem:boot_oauth_server;DB_CLOSE_DELAY=-1 #jdbc:mysql://localhost:3306/boot_oauth_server
     username: root
     password: password
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.h2.Driver #com.mysql.cj.jdbc.Driver
     initialization-mode: ALWAYS
   jpa:
     generate-ddl: true
     hibernate:
       ddl-auto: create
     show-sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-oauth
 
 
 lms:

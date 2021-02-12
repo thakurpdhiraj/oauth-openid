@@ -4,6 +4,11 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.stream.Collectors;
 
+/**
+ * Allowed Grants for Tokens
+ *
+ * @author Dhiraj
+ */
 public enum AllowedGrant {
   AUTHORIZATION_CODE("authorization_code"),
   REFRESH_TOKEN("refresh_token");
@@ -18,8 +23,11 @@ public enum AllowedGrant {
     return Arrays.stream(AllowedGrant.values())
         .filter(allowedGrant -> allowedGrant.getValue().equals(grant))
         .findFirst()
-        .orElseThrow(()-> new IllegalArgumentException(
-            "the 'grant_type' is invalid. Allowed grant_type values : " + getAllAsString()));
+        .orElseThrow(
+            () ->
+                new IllegalArgumentException(
+                    "the 'grant_type' is invalid. Allowed grant_type values : "
+                        + getAllAsString()));
   }
 
   public static String getAllAsString() {

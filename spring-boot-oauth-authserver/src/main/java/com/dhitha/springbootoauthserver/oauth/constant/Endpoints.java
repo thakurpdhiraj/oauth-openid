@@ -1,9 +1,10 @@
 package com.dhitha.springbootoauthserver.oauth.constant;
 
 /**
+ * All endpoints for application
+ *
  * @author Dhiraj
  */
-
 public class Endpoints {
 
   public static final String AUTHORIZATION_ENDPOINT = "/oauth/v1/authorize";
