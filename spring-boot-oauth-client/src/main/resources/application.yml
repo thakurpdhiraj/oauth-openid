@@ -1,0 +1,22 @@
+server:
+  port: 8181
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          lms:
+            client-id: app.lms.1
+            client-secret: y8X2Yio05kHiTsisYE68
+            scope:
+              - openid
+              - profile
+              - email
+        provider:
+          lms:
+            issuer-uri: http://lms.in:8081
+
+logging:
+  level:
+    root: INFO

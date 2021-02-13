@@ -45,14 +45,20 @@ public class UserInfoController {
       AccessToken token = accessTokenService.getToken(accessToken);
       User user = token.getUser();
       JSONObject userJson =
-          new JSONObject().appendField("sub", user.getId()).appendField("name", user.getName());
+          new JSONObject()
+              .appendField("sub", user.getId())
+              .appendField("given_name", user.getName());
       if (token.getApprovedScopes().contains(AllowedScope.PROFILE.getValue())) {
+        userJson.appendField("updated_at", user.getUpdatedAt());
+      }
+      if (token.getApprovedScopes().contains(AllowedScope.EMAIL.getValue())) {
         userJson.appendField("email", user.getEmail());
+        userJson.appendField("email_verified", true);
       }
       return ResponseEntity.ok(userJson);
     } catch (AccessTokenNotFoundException e) {
       throw new GenericAPIException(
-          "invalid_grant", "Access token is invalid / expired", HttpStatus.UNAUTHORIZED);
+          "invalid_token", "Access token is invalid / expired", HttpStatus.UNAUTHORIZED);
     }
   }
 }

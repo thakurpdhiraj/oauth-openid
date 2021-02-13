@@ -21,11 +21,11 @@ spring:
 
 lms:
   oauth:
-    issuer: http://localhost:${server.port}
-    authorization_endpoint: http://localhost:${server.port}/oauth/v1/authorize
-    token_endpoint: http://localhost:${server.port}/oauth/v1/token
-    userinfo_endpoint: http://localhost:${server.port}/v1/userinfo
-    jwks_uri: http://localhost:${server.port}/oauth/v1/certs
+    issuer: http://lms.in:${server.port} #http://localhost:${server.port} -> changed hostname for localhost for development
+    authorization_endpoint: http://lms.in:${server.port}/oauth/v1/authorize
+    token_endpoint: http://lms.in:${server.port}/oauth/v1/token
+    userinfo_endpoint: http://lms.in:${server.port}/v1/userinfo
+    jwks_uri: http://lms.in:${server.port}/oauth/v1/certs
 #    registration_endpoint: http://localhost:${server.port}
     token_endpoint_auth_methods_supported:
       - client_secret_basic
@@ -35,13 +35,11 @@ lms:
     scopes_supported:
       - openid
       - profile
-      - read.user.book
-      - create.user.book
-      - read.book
-      - create.book
+      - email
     response_types_supported:
       - code
     grant_types_supported:
       - authorization_code
       - refresh_token
-
+    subject_types_supported:
+      - public

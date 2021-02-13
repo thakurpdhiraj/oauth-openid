@@ -7,7 +7,8 @@ package com.dhitha.springbootoauthserver.oauth.constant;
  */
 public enum AllowedScope {
   OPENID("openid"),
-  PROFILE("profile");
+  PROFILE("profile"),
+  EMAIL("email");
 
   private final String value;
 

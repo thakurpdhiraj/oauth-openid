@@ -97,7 +97,7 @@ public class AuthorizationUtil {
     if (!scopeSet.containsAll(params.getScope())) {
       throw new GenericWebException(
           "invalid_request",
-          "Invalid scope parameter. Allowed scope: " + scopeSet,
+          "Invalid scope parameter. Allowed scope: " + String.join(",", scopeSet),
           redirectURI,
           params.getState());
     }
