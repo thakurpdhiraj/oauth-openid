@@ -1,5 +1,7 @@
 package com.dhitha.springbootoauthserver.oauth.util;
 
+import static com.dhitha.springbootoauthserver.oauth.constant.Constants.SCOPE_TOKEN;
+
 import com.dhitha.springbootoauthserver.oauth.constant.AllowedGrant;
 import com.dhitha.springbootoauthserver.oauth.constant.AllowedScope;
 import com.dhitha.springbootoauthserver.oauth.dto.TokenRequestDTO;
@@ -15,8 +17,9 @@ import com.dhitha.springbootoauthserver.oauth.service.AuthorizationCodeService;
 import com.dhitha.springbootoauthserver.oauth.service.OauthClientService;
 import com.nimbusds.jwt.JWTClaimsSet.Builder;
 import java.time.Instant;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.Date;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -113,8 +116,8 @@ public class TokenUtil {
   }
 
   private String generateIdToken(String nonce, AccessToken token) throws GenericAPIException {
-    Instant updatedInstant = token.getUpdatedAt().toInstant(ZoneOffset.UTC);
-    Instant expiryInstant = token.getAccessTokenExpiry().toInstant(ZoneOffset.UTC);
+    Instant updatedInstant = token.getUpdatedAt().atZone(ZoneId.systemDefault()).toInstant();
+    Instant expiryInstant = token.getAccessTokenExpiry().atZone(ZoneId.systemDefault()).toInstant();
     User user = token.getUser();
     Builder jwtBuilder =
         new Builder()
@@ -126,9 +129,21 @@ public class TokenUtil {
             .notBeforeTime(Date.from(updatedInstant))
             .subject(user.getId().toString())
             .claim("nonce", nonce)
-            .claim("scope", String.join(", ", token.getApprovedScopes()));
+            .claim("scope", String.join(SCOPE_TOKEN, token.getApprovedScopes()));
+    String userRoles =
+        user.getUserRoles().stream()
+            .map(role -> role.getName().replaceFirst("ROLE_", ""))
+            .collect(Collectors.joining(SCOPE_TOKEN));
+    jwtBuilder.claim("role", userRoles);
     if (token.getApprovedScopes().contains(AllowedScope.PROFILE.getValue())) {
-      jwtBuilder.claim("name", user.getName()).claim("email", user.getEmail());
+      Instant userUpdatedAt = user.getUpdatedAt().atZone(ZoneId.systemDefault()).toInstant();
+      jwtBuilder
+          .claim("given_name", user.getName())
+          .claim("full_name", user.getName())
+          .claim("updated_at", Date.from(userUpdatedAt));
+    }
+    if (token.getApprovedScopes().contains(AllowedScope.EMAIL.getValue())) {
+      jwtBuilder.claim("email", user.getEmail()).claim("email_verified", true);
     }
     return jwtUtil.signAndSerializeJWT(jwtBuilder.build());
   }

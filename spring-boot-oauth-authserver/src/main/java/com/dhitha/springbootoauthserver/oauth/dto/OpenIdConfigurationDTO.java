@@ -26,4 +26,5 @@ public class OpenIdConfigurationDTO {
   private final List<String> scopes_supported;
   private final List<String> response_types_supported;
   private final List<String> grant_types_supported;
+  private final List<String> subject_types_supported;
 }
